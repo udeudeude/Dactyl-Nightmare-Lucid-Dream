@@ -46,3 +46,20 @@ test('endpoint requires TLS except on local test hosts',()=>{
   assert.equal(endpoint('ws://127.0.0.1:1234'), 'ws://127.0.0.1:1234/room');
   for(const value of ['ws://public.example','https://public.example','wss://name:secret@public.example','wss://public.example/?token=x'])assert.throws(()=>endpoint(value));
 });
+test('a half-open socket cannot hold reconnect hostage while close waits for the network',t=>{
+  t.mock.timers.enable({apis:['setTimeout','setInterval','Date']});
+  const sockets=[];
+  class HalfOpenSocket{
+    constructor(){this.readyState=1;this.bufferedAmount=0;sockets.push(this);}
+    send(){}
+    close(){this.readyState=2;} // deliberately never dispatches close
+  }
+  const client=new Client({WebSocketClass:HalfOpenSocket});t.after(()=>client.leave());
+  client.connect('ws://127.0.0.1:1234','create');sockets[0].onopen();
+  sockets[0].onmessage({data:JSON.stringify({type:'welcome',room:'LD-12345678',id:'player',token:'private',self:{epoch:0}})});
+  assert.equal(client.connected,true);
+  t.mock.timers.tick(15000);assert.equal(client.connected,false);assert.equal(sockets[0].readyState,2);
+  t.mock.timers.tick(1000);assert.equal(sockets.length,2);
+  // An eventual callback from the abandoned socket cannot start another retry.
+  sockets[0].onclose({code:1006});t.mock.timers.tick(1000);assert.equal(sockets.length,2);
+});
