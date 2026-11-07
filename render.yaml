@@ -1,0 +1,16 @@
+# Optional single-instance room server and branch preview. GitHub Pages remains
+# the main client. Select the Free instance explicitly in Render's setup screen.
+services:
+  - type: web
+    name: dactyl-nightmare-rooms
+    runtime: node
+    plan: free
+    region: virginia
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ALLOWED_ORIGINS
+        value: https://udeudeude.github.io
