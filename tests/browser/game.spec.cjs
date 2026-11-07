@@ -52,3 +52,15 @@ test('a queued frame older than Play does not reverse time or crash audio', asyn
   expect(state.world).toBe(0);
   expect(state.frames).toBeGreaterThan(0);
 });
+test('bird attacks follow actual shots instead of elapsed time', async ({ page }) => {
+  await page.goto('/');
+  const state=await page.evaluate(()=>{
+    playing=true;world=0;birdCooldown=0;invulnerable=0;birdAttack=0;last=performance.now();
+    tick(last+16);const idle=birdAttack;
+    for(let i=0;i<9;i++){lastShot=-Infinity;shoot();}tick(last+16);const nine=birdAttack;
+    lastShot=-Infinity;shoot();tick(last+16);playing=false;
+    return {idle,nine,ten:birdAttack,shots:shots.length};
+  });
+  expect(state.idle).toBe(0);expect(state.nine).toBe(0);expect(state.ten).toBeGreaterThan(0);
+  expect(state.shots).toBe(10);
+});

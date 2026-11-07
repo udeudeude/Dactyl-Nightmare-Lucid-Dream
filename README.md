@@ -8,7 +8,7 @@ Open the GitHub Pages site in Safari on an iPhone. Choose Play on phone or Googl
 
 ## Historical accuracy
 
-Arena geometry, colors, physics, timing, and character behavior are provisional. The pterodactyl is currently visual only. Historical fidelity requires comparison against original recordings.
+Arena geometry, colors, physics, timing, and character behavior are provisional. The pterodactyl can capture and drop the local player; its flight and capture sequence remain approximate. Historical fidelity requires comparison against original recordings.
 
 ## Hosting
 
@@ -33,3 +33,11 @@ The arena's provisional dimensions are unchanged. Stair rendering and collision 
 share surfaces, with continuous platform joins; polygons crossing the camera's near
 plane are clipped instead of disappearing. These are implementation corrections,
 not new claims about the original game's geometry.
+
+## Historical rules evidence
+
+The CS 1000 service manual documents a configurable bird attack threshold of ten
+shots by default. That threshold now replaces the prototype's automatic periodic
+attacks and is adjustable in the menu. See [docs/HISTORICAL_EVIDENCE.md](docs/HISTORICAL_EVIDENCE.md)
+for the exact source page, verified facts, implementation inferences and unresolved
+release differences. The manual is not proof of every launch-1991 software detail.
