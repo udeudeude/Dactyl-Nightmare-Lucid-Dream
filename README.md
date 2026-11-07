@@ -13,3 +13,9 @@ Arena geometry, colors, physics, timing, and character behavior are provisional.
 ## Hosting
 
 GitHub Settings > Pages > Deploy from branch > main > /(root). GitHub Pages supplies HTTPS.
+
+## Second-device controller
+
+Open `controller.html` on a second phone. On the game phone, use **Pair another phone** in the main menu, then share the six-character code or controller link. A virtual thumbstick controls movement and FIRE shoots. This relies on PeerJS signaling and a peer-to-peer data connection, so restrictive networks may prevent pairing. Pair before putting the game phone into Cardboard.
+
+Bluetooth gamepads can work through the browser Gamepad API. Generic Bluetooth headphones, headphone inline buttons, and watch controls generally cannot expose arbitrary game actions to iPhone Safari; they are not advertised as supported controllers. Controller pairing and latency still require real-device testing.
