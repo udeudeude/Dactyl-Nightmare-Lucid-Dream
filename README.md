@@ -25,3 +25,11 @@ Bluetooth gamepads can work through the browser Gamepad API. Generic Bluetooth h
 Original 1000CS service manual documents separate microphone (factory 63/63), CD (48/63), and effects (52/63) levels. A contemporary 1994 first-person account in The Independent describes footsteps, gunshots, screeches and ghostly laughter. References: https://vrtifacts.com/wp-content/uploads/filebase/Virtuality-1000CS-Service-Manual.pdf and https://www.independent.co.uk/arts-entertainment/don-t-mind-if-i-do-how-do-you-feel-when-you-get-carried-off-by-a-large-pterodactyl-nick-pemberton-found-it-all-too-real-for-his-liking-well-virtually-1438607.html .
 
 Implemented: original newly synthesized, intentionally approximate gunfire, footsteps, pterodactyl screech, capture, falling, hit sounds, and a dormant ghostly-laughter synthesizer; sparse original ambient score referencing early-1990s cinematic game music without copying compositions. Sound effects and score have independent volume controls; voice chat is not implemented. These are *not* recovered recordings. Hardware support for CD music does not establish the original game's track or whether music ran continuously. Future work: find and analyze original audio recordings, match envelopes/pitches/timing, replace approximations with verified recreations, add multiplayer microphone channel, validate on iPhone. 
+
+## Development verification
+
+Regression tests and phone-only acceptance steps are in [docs/TESTING.md](docs/TESTING.md).
+The arena's provisional dimensions are unchanged. Stair rendering and collision now
+share surfaces, with continuous platform joins; polygons crossing the camera's near
+plane are clipped instead of disappearing. These are implementation corrections,
+not new claims about the original game's geometry.
