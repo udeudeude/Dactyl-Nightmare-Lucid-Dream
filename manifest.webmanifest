@@ -1,0 +1,11 @@
+{
+  "name": "Dactyl Nightmare: Lucid Dream",
+  "short_name": "Dactyl Nightmare",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#090912",
+  "theme_color": "#090912",
+  "description": "Phone-first historical reconstruction of Dactyl Nightmare"
+}
