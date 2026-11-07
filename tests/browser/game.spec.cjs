@@ -42,3 +42,13 @@ test('expired remote controller input is cleared before movement', async ({ page
   });
   expect(x).toBe(-13);
 });
+
+test('a queued frame older than Play does not reverse time or crash audio', async ({ page }) => {
+  await page.goto('/'); await page.locator('#solo').click();
+  const state = await page.evaluate(() => {
+    playing=true;world=0;last=performance.now()+100;tick(last-1);playing=false;
+    return {world,frames:renderedFrames};
+  });
+  expect(state.world).toBe(0);
+  expect(state.frames).toBeGreaterThan(0);
+});
