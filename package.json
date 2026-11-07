@@ -1,0 +1,25 @@
+{
+  "name": "dactyl-nightmare-lucid-dream",
+  "version": "0.2.0",
+  "description": "Experimental iPhone-first reconstruction of the 1991 Virtuality arcade game. This is not original software or a verified historically exact reproduction.",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "test:browser": "playwright test",
+    "check": "node scripts/check.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/udeudeude/Dactyl-Nightmare-Lucid-Dream.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/udeudeude/Dactyl-Nightmare-Lucid-Dream/issues"
+  },
+  "homepage": "https://github.com/udeudeude/Dactyl-Nightmare-Lucid-Dream#readme",
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  },
+  "private": true
+}
