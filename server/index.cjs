@@ -10,6 +10,8 @@ const PUBLIC_FILES = new Map([
   ['/icon.svg',['icon.svg','image/svg+xml']], ['/dactyl-icon-v2.png',['dactyl-icon-v2.png','image/png']],
   ['/js/geometry.js',['js/geometry.js','text/javascript']],
   ['/js/rules.js',['js/rules.js','text/javascript']],
+  ['/js/orientation.js',['js/orientation.js','text/javascript']],
+  ['/js/head-tracking.js',['js/head-tracking.js','text/javascript']],
   ['/js/relay-client.js',['js/relay-client.js','text/javascript']],
   ['/js/multiplayer-relay.js',['js/multiplayer-relay.js','text/javascript']]
 ]);
