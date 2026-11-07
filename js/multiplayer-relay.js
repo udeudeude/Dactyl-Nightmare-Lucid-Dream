@@ -20,7 +20,7 @@
   function storeSession(value){saved=value;try{if(value)sessionStorage.setItem(sessionKey,JSON.stringify(value));else sessionStorage.removeItem(sessionKey);}catch{}}
   const messages={room_full:'Room is full (four seats, including reconnecting friends).',room_expired:'Room ended or server restarted. Create a new room.',session_expired:'Your reconnect reservation expired. Join the room again.',invalid_room:'Enter a code such as LD-1234ABCD.',unavailable:'Server unavailable. Check its address and try again; a sleeping free server may need a minute.',replaced:'This seat was resumed in another tab.',server_full:'Server is busy. Please try again later.',protocol_version:'Game and server versions differ. Reload the game.'};
   function clearPeers(){for(const connection of conns)connection.close();conns=[];peer?.destroy();peer=null;others={};shots=[];targets={};}
-  function resetToSolo(){room='';id='local';others={};shots=[];targets={};scoreBoard.textContent='';shareButton.hidden=true;}
+  function resetToSolo(){birdTrigger.reset();room='';id='local';others={};shots=[];targets={};scoreBoard.textContent='';shareButton.hidden=true;}
   const relay=new DactylRelay.Client({
     save:storeSession,
     onStatus(state,code){
@@ -36,7 +36,7 @@
     },
     onEvent(data){
       if(data.type==='welcome'){
-        clearPeers();latestSequence=-1;room=data.room;id=data.id;score=data.self.score;
+        if(id!==data.id)birdTrigger.reset();clearPeers();latestSequence=-1;room=data.room;id=data.id;score=data.self.score;
         Object.assign(me,{x:data.self.x,y:data.self.y,z:data.self.z});
         birdCarry=0;birdAttack=0;invulnerable=4;lastShot=-Infinity;
         shots=data.shots.map(b=>({...b}));
@@ -53,7 +53,7 @@
         scoreBoard.textContent=data.players.map((p,i)=>'P'+(i+1)+(p.id===id?' (you)':'')+': '+p.score+(p.online?'':' · reconnecting')).join('  |  ');
       }else if(data.type==='shot'){
         // The local predicted shot is already visible and audible.
-        if(data.b.owner!==id)shots.push({...data.b});else{const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
+        if(data.b.owner!==id)shots.push({...data.b});else{recordDactylShot();const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
       }else if(data.type==='hit'){
         shots=shots.filter(b=>b.id!==data.shot);
         if(data.source===id)sound('hit');
