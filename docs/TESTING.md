@@ -28,6 +28,6 @@ is useful regression coverage, **not** proof of iPhone hardware compatibility.
    motion/fire must clear after 900 ms. Check both eyes for missing floor polygons.
 
 Still unverified on physical hardware: head tracking, lens calibration, controller
-compatibility, visual comfort, thermal behavior, and sustained frame rate. This
-change does not repair the existing simplified orientation mapping or introduce
-lens distortion correction.
+compatibility, visual comfort, thermal behavior, and sustained frame rate. Orientation now uses the full sensor basis and screen rotation; permission and
+landscape behavior have simulated browser coverage. See [CARDBOARD.md](CARDBOARD.md).
+Lens distortion correction and measured viewer calibration remain unimplemented.
