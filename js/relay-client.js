@@ -30,7 +30,15 @@
       let socket;
       try { socket=new this.WebSocketClass(this.url); } catch { this.retryLater(generation); return; }
       this.socket=socket;this.lastMessage=Date.now();
-      const timeout=setTimeout(()=>{if (!this.connected) socket.close();},15000);
+      // A broken network may leave close() in CLOSING for tens of seconds.
+      // Detach first so a new socket can resume the seat without waiting for FIN.
+      const abandon=()=>{
+        if(generation!==this.generation||socket!==this.socket)return;
+        this.socket=null;this.connected=false;clearInterval(this.watchdog);
+        socket.close();this.retryLater(generation);
+      };
+      this.recoverConnection=abandon;
+      const timeout=setTimeout(abandon,15000);
       socket.onopen=()=> {
         if (generation !== this.generation) { socket.close(); return; }
         socket.send(JSON.stringify({type:'hello',v:1,action:this.token?'resume':this.action,room:this.room,token:this.token}));
@@ -51,7 +59,7 @@
           this.onEvent(data);this.onStatus('connected');
           clearInterval(this.watchdog);
           this.watchdog=setInterval(()=> {
-            if (Date.now()-this.lastMessage>15000) {socket.close();return;}
+            if (Date.now()-this.lastMessage>=15000) {abandon();return;}
             this.send({type:'ping',at:Date.now()});
           },5000);
         } else {
@@ -80,7 +88,7 @@
     send(message) {
       if (!this.connected || this.socket?.readyState!==1) return false;
       // Never queue stale movement for a slow/reconnecting connection.
-      if (this.socket.bufferedAmount>16384) {this.socket.close();return false;}
+      if (this.socket.bufferedAmount>16384) {this.recoverConnection();return false;}
       this.socket.send(JSON.stringify({...message,epoch:this.epoch}));return true;
     }
     leave() {
