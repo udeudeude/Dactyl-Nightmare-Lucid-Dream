@@ -7,5 +7,13 @@
   "orientation": "landscape",
   "background_color": "#090912",
   "theme_color": "#090912",
-  "description": "Phone-first historical reconstruction of Dactyl Nightmare"
+  "description": "Phone-first historical reconstruction of Dactyl Nightmare",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
