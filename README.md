@@ -41,3 +41,7 @@ shots by default. That threshold now replaces the prototype's automatic periodic
 attacks and is adjustable in the menu. See [docs/HISTORICAL_EVIDENCE.md](docs/HISTORICAL_EVIDENCE.md)
 for the exact source page, verified facts, implementation inferences and unresolved
 release differences. The manual is not proof of every launch-1991 software detail.
+
+## Wired Apple Earbud Remote
+
+Optional single/double/triple center-click control for iPhone Cardboard. Enable and verify on the game's main menu before entering the viewer. Default actions: single fire, double recenter, triple menu. Based on the tested [earbud-controller-](https://github.com/udeudeude/earbud-controller-) Media Session experiment. See [setup, limitations and acceptance tests](docs/EARBUD_REMOTE.md).
