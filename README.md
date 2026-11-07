@@ -4,7 +4,7 @@ Experimental iPhone-first reconstruction of the 1991 Virtuality arcade game. Thi
 
 ## Play
 
-Open the GitHub Pages site in Safari on an iPhone. Choose Play on phone or Google Cardboard. Cardboard requires landscape orientation, motion permission, and preferably a Bluetooth gamepad. Multiplayer is experimental peer-to-peer networking using PeerJS and may fail on restrictive networks.
+Open the GitHub Pages site in Safari on an iPhone. Choose Play on phone or Google Cardboard. Cardboard requires landscape orientation, motion permission, and preferably a Bluetooth gamepad. Multiplayer offers the existing experimental PeerJS connection and an optional four-player room server with reconnect support and server-owned combat. See [the phone-only room-server guide](docs/MULTIPLAYER.md). PeerJS may fail on restrictive networks; the room server requires a deployed endpoint.
 
 ## Historical accuracy
 
