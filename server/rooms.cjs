@@ -1,6 +1,6 @@
 'use strict';
 const { randomBytes, randomUUID } = require('node:crypto');
-const SPAWNS = [{x:-13,y:2,z:0},{x:13,y:2,z:0},{x:0,y:2,z:-13},{x:0,y:2,z:13}];
+const SPAWNS = [{x:-13,y:2,z:3},{x:13,y:2,z:3},{x:3,y:2,z:-13},{x:3,y:2,z:13}];
 const GRACE_MS = 30000;
 const SHOT_INTERVAL_MS = 1800;
 

@@ -78,5 +78,19 @@
     return {x:platform.x+Math.sin(time*.55)*extent*.65,
       y:platform.y,z:platform.z+Math.sin(time*.7)*extent*.65};
   }
-  return { stairs, groundAt, clipNear, movementInput, patrol };
+  // The visible upright square-aperture ring is a physical frame, not scenery.
+  // A standing avatar is taller than its 1.2-unit opening, so it cannot pass
+  // underneath the top beam. This footprint approximation is provisional.
+  function ringBlocks(x,z,platforms,radius=.28) {
+    for (const p of platforms) {
+      const heading=p===platforms[0]?0:Math.atan2(p.x-platforms[0].x,p.z-platforms[0].z);
+      const dx=x-p.x,dz=z-p.z,c=Math.cos(heading),s=Math.sin(heading);
+      const localX=dx*c-dz*s,localZ=dx*s+dz*c;
+      const nearestX=Math.max(-1.4,Math.min(1.4,localX));
+      const nearestZ=Math.max(-.22,Math.min(.22,localZ));
+      if(Math.hypot(localX-nearestX,localZ-nearestZ)<radius)return true;
+    }
+    return false;
+  }
+  return { stairs, groundAt, clipNear, movementInput, patrol, ringBlocks };
 });
