@@ -31,7 +31,7 @@ provided for repeatable inspection, not calibrated photogrammetry.
 
 | Object | Direct observations and reference | Implemented target | Still inferred / unresolved |
 | --- | --- | --- | --- |
-| Boards | 800–805 s aerial: blue/white center and red/white outer boards. At 804 s left board corners approximately (243,608), (651,353), (1111,588), (710,817). | Different floor patterns: center 3×3 checks per quadrant, outer 2×2, broad cross and narrow perimeter. | Existing 12/10 widths, 13 spacing and 2 rise retained; no camera calibration or recovered scale. |
+| Boards | 800–805 s aerial: blue/white center and red/white outer boards. The earlier approximate outer-board corner coordinates were withdrawn after they failed a planar consistency check; do not use them as measurements. | Different floor patterns: center 3×3 checks per quadrant, outer 2×2. Central one-cell cross and wider perimeter are supported by the planar samples below; outer proportions remain provisional. | Existing 12/10 widths, 13 spacing and 2 rise retained; no camera calibration or recovered scale. |
 | Cross/perimeter | Grey in period capture; teal in the independently inspected 2022 still. | Neutral grey-green palette for this period target, no textured or reflective surface. | Analog transfer and software revision may account for disagreement; RGB values are not original palette data. |
 | Rings | 788 s outer platform; 812 s close central view: upright rust/orange exterior with clipped corners, square opening. At 812 s opening approximately (336,570)–(584,837). | Upright octagonal exterior, square aperture, visible thickness and inside walls, center and outer boards. | 2.8 height, 1.1×1.2 aperture, .44 depth and repeated orientation are modeling estimates. Original collision unknown; remains decorative. |
 | Columns | 812 s right column around x=1370, shaft y=235–720, flared base y=720–807. 800–805 s central roof corners. | Eight-sided shafts, broad flared feet and capitals. | Facet count, radii, height and hidden details inferred. |
@@ -71,3 +71,35 @@ camera calibration, withheld-view reprojection fit, physical iPhone test or exac
 asset recovery has been completed. Do not promote any estimated dimensions to
 measurements. The remaining rows above are required before calling the visual
 reconstruction complete, much less perfect.
+
+
+## Central floor proportion measurement (2026-11-08 follow-up)
+
+The sample and reproducible solver are in `research/period-center-floor.json` and
+`scripts/measure-planar.cjs`. Run `node scripts/measure-planar.cjs` to reproduce the
+numbers without downloading footage or installing analysis dependencies. The JSON
+records the source checksum, timestamp, original pixel dimensions, four approximate
+floor corners, edge points, and declared error assumptions. No image is generated.
+
+A planar homography maps those four **central floor** corners to a unit square.
+Two unobscured near-side scanlines at 800 seconds give crossing-width / mean-tile
+width ratios of **1.102 and 1.116**. Perturbing corners by up to 12 pixels and edge
+points by up to 8 pixels independently gives central 95% sensitivity ranges of
+**0.947–1.273 and 0.959–1.278** in 1,000 deterministic trials. These are sensitivity
+intervals under assumed errors, NOT calibrated statistical confidence intervals.
+The two rows share a frame and corner fit; they are not independent viewpoints.
+
+The previous geometry's crossing was **1.792 tiles wide** (`.23 / (.77 / 6)`),
+outside both sensitivity ranges. Use a **one-cell central cross** as the simple
+regular-grid hypothesis supported by the measurements. Right-side check-to-border
+transitions are approximately 0.93–0.94 of board width; use a symmetric perimeter
+of 0.065 board width. Symmetry and exact one-cell width remain modeling decisions;
+original coordinates are not recovered. The newly sized cells, crossing and border
+still tile the same walkable central square with no overlap or collision change.
+
+The outer-board corner attempt did not consistently align the checker transitions
+and is rejected. This pass therefore does **not** alter outer proportions, platform
+spacing, elevation, stairs, ring collision or spawn locations. Original boundary
+occlusion, analog distortion, revision and absolute scale remain unresolved.
+A planar measurement says nothing about objects above/below that plane. Recovering
+stairs/elevations still requires multiple reliably matched views and a camera fit.

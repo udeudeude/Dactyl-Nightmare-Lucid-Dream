@@ -78,3 +78,10 @@ test('first person gun uses the common camera basis and physical stereo disparit
   }
  }
 });
+test('central crossing is one tile wide with the measured wider perimeter',()=>{
+ const center=platforms[0],tile=faces.find(f=>f.part==='checks'&&f.v[0][1]===center.y);
+ const width=Math.max(...tile.v.map(v=>v[0]))-Math.min(...tile.v.map(v=>v[0]));
+ const cross=faces.find(f=>f.part==='floor'&&f.v[0][1]===center.y&&contains(f,center.x,center.z));
+ assert.ok(Math.abs(Math.max(...cross.v.map(v=>v[0]))-Math.min(...cross.v.map(v=>v[0]))-width)<1e-12);
+ assert.ok(Math.abs(Math.min(...tile.v.map(v=>v[0]))+center.w/2-center.w*.065)<1e-12);
+});

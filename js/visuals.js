@@ -64,9 +64,11 @@
   function arena(platforms,stairs){
     const m=mesh(),P=PALETTE;
     for(let index=0;index<platforms.length;index++){
-      const p=platforms[index],border=.35,inner=p.w-border*2;
+      const p=platforms[index],border=index===0?p.w*.065:.35,inner=p.w-border*2;
       // GamePro aerial 13:20–13:24: center 3x3 quadrants, outer 2x2.
-      const count=index===0?3:2,cross=inner*.23,tile=(inner-cross)/(count*2);
+      // Rectified V03 central-floor samples support a one-cell cross, not two.
+      // Outer board ratios remain provisional; do not transfer the central fit.
+      const count=index===0?3:2,cross=index===0?inner/7:inner*.23,tile=(inner-cross)/(count*2);
       const x=p.x-p.w/2,z=p.z-p.w/2;
       m.floor(x,z,p.w,border,p.y,P.teal);m.floor(x,z+p.w-border,p.w,border,p.y,P.teal);
       m.floor(x,z+border,border,inner,p.y,P.teal);m.floor(x+p.w-border,z+border,border,inner,p.y,P.teal);
