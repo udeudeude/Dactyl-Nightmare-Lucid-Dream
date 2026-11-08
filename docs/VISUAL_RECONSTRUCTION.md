@@ -63,3 +63,11 @@ Phone check after integration (no terminal needed):
 
 Automated geometry checks and browser tests do not establish physical iPhone
 comfort, thermal performance, optical calibration or historical exactness.
+
+## Arena elevation correction and dimensional uncertainty (2026-11-08)
+
+A published scholarly description (Andrew Williams, *History of Digital Games*, chapter "Early 3D and the Multimedia Boom") explicitly describes **four platforms connected to a central low platform**. This supports raising all four surrounding platforms, rather than only the north/south pair. See https://www.bloomsburyvisualarts.com/ and the cited chapter. Kotaku's original-hardware account corroborates the five-platform arrangement but does not give measurements: https://kotaku.com/the-man-whos-keeping-1990s-virtual-reality-machines-ali-1778990894 .
+
+**Implemented:** center surface y=0; all four outer surfaces y=2 (relative game units); eight rising steps per connector; shared rendered/collision stair geometry; both player spawn heights and server-authoritative spawn slots corrected to y=2. This **2-unit rise is an estimate**, not a historical measurement. The existing 12-unit central width, 10-unit outer widths, 13-unit center spacing, 3-unit stair width, eight treads, checker divisions, post height and other dimensions remain provisional. No source yet provides trustworthy numeric world coordinates, scale or measured proportions. These values must not be described as precise reconstructions.
+
+To determine actual dimensions, obtain multiple calibrated original-hardware viewpoints or surviving level data, estimate perspective and camera parameters, reconstruct a consistent 3D model, and record measurement confidence intervals. Avoid extrapolating exact lengths from a single screenshot or from later Virtuality versions.
