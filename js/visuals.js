@@ -55,6 +55,21 @@
         m.box(p.x+sign*span/2,p.y+height,p.z,post,beam,span+post,P.yellow,P.yellowSide,P.yellowDark,'frame');
       }
     }
+    // The 1993 first-person account describes a large doughnut-shaped object
+    // in the center of the lower arena. Faceted ring geometry is provisional:
+    // its diameter, elevation, orientation and material are not documented.
+    // A low-poly annulus preserves the visible opening instead of a solid tower.
+    const center=platforms[0],segments=12,outer=2.05,inner=.94;
+    const ringBottom=center.y+.34,ringTop=center.y+.83;
+    for(let i=0;i<segments;i++){
+      const a=i*2*Math.PI/segments,b=(i+1)*2*Math.PI/segments;
+      const pt=(r,ang,y)=>[center.x+r*Math.cos(ang),y,center.z+r*Math.sin(ang)];
+      const oa=pt(outer,a,ringTop),ob=pt(outer,b,ringTop);
+      const ia=pt(inner,a,ringTop),ib=pt(inner,b,ringTop);
+      m.face([oa,ob,ib,ia],i%2?P.yellow:P.yellowSide,'central-ring');
+      m.face([pt(outer,a,ringBottom),pt(outer,b,ringBottom),ob,oa],P.yellowDark,'central-ring');
+      m.face([ia,ib,pt(inner,b,ringBottom),pt(inner,a,ringBottom)],P.yellowSide,'central-ring');
+    }
     for(const p of stairs)m.box(p.x,p.y-.24,p.z,p.w,.24,p.d,
       p.step%2?P.white:P.teal,P.yellowSide,P.tealSide,'stairs');
     return m.faces;
