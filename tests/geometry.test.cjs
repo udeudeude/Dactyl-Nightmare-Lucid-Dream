@@ -51,3 +51,17 @@ test('solo opponent patrol stays on raised platform',()=>{
  const p=platforms[2];const {patrol}=require('../js/geometry.js');
  for(let t=0;t<1000;t+=.37){const pos=patrol(p,t);assert.equal(pos.y,2);assert.equal(groundAt(pos.x,pos.z,platforms,surfaces),2)}
 });
+
+test('ring frames block player movement at all five platforms',()=>{
+ const {ringBlocks}=require('../js/geometry.js');
+ for(const p of platforms){assert.equal(ringBlocks(p.x,p.z,platforms),true);assert.equal(ringBlocks(p.x+3,p.z+3,platforms),false)}
+ for(const [x,z] of [[-13,3],[13,3],[3,-13],[3,13]])assert.equal(ringBlocks(x,z,platforms),false);
+});
+test('ring collision includes player clearance and respects ring orientation',()=>{
+ const {ringBlocks}=require('../js/geometry.js');
+ assert.equal(ringBlocks(0,0,platforms),true);
+ assert.equal(ringBlocks(0,1,platforms),false);
+ assert.equal(ringBlocks(0,.45,platforms),false);
+ assert.equal(ringBlocks(0,.3,platforms),true);
+ assert.equal(ringBlocks(13.3,0,platforms),true);
+});
