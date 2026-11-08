@@ -14,7 +14,7 @@ test('game renders, crosses each stairway and retains finite stereo polygons', a
     let vertices = 0, invalid = 0;
     const original = g.lineTo.bind(g);
     g.lineTo = (x,y) => { vertices++; if (!Number.isFinite(x+y)) invalid++; original(x,y); };
-    draw(0,W/2,-1); draw(W/2,W/2,1);
+    draw(0,W/2,-1,true); draw(W/2,W/2,1,true);
     return { gaps, invalid, vertices };
   });
   expect(result.gaps).toBe(0); expect(result.invalid).toBe(0); expect(result.vertices).toBeGreaterThan(50);
