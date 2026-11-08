@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { stairs, groundAt, clipNear, movementInput } = require('../js/geometry.js');
-const platforms = [{x:0,z:0,w:12,y:0},{x:-13,z:0,w:10,y:0},{x:13,z:0,w:10,y:0},{x:0,z:-13,w:10,y:2},{x:0,z:13,w:10,y:2}];
+const platforms = [{x:0,z:0,w:12,y:0},{x:-13,z:0,w:10,y:2},{x:13,z:0,w:10,y:2},{x:0,z:-13,w:10,y:2},{x:0,z:13,w:10,y:2}];
 const surfaces = stairs(platforms);
 
 test('all four platform/stair joins are continuous in both directions', () => {
