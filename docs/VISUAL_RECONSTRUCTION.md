@@ -81,3 +81,17 @@ Nicola Green's [*Becoming Virtual* thesis](https://ir.canterbury.ac.nz/bitstream
 **Implemented now:** an open 12-sided annular central object beneath the open roof, using the existing yellow palette. Its outer radius 2.05, inner radius 0.94 and height 0.34–0.83 game units are *inferences* selected for recognizability. The ring is currently decorative, not an authenticated collision obstacle. The roof frames remain provisional. No surviving source has yet established their numeric scale.
 
 **Evidence hierarchy for further work:** (1) original executable/level assets or measured arcade geometry, (2) multiple original-hardware recordings with camera pose calibration, (3) original screenshots and contemporary firsthand descriptions, (4) later recollections, (5) conjectural reconstructions. Never derive exact dimensions from a single perspective image. Track measured versus estimated quantities separately.
+
+## Source audit: numerical geometry (2026-11-08)
+
+Further source review did **not** uncover original level-coordinate data, measured heights, tread count, platform widths, or architectural measurements. Do not present the current 12/10/13/2-unit model as recovered dimensions.
+
+Evidence newly cross-checked:
+
+- [Original-hardware 1000CS capture, June 2022](https://commons.wikimedia.org/wiki/File:Virtuality_VR_Dactyl_Nightmare_Arcade_Game.jpg): useful for visible color, silhouettes, and relative perspective, but a single image cannot establish scale or camera position.
+- [1993 play account, republished 2016](https://subethasoftware.com/2016/02/22/revisiting-virtual-reality-from-1993/): a *small starting area*, stairs down to a *large central playing area*, four starting positions, a pole-supported open roof, and a central doughnut. This constrains topology and relative sizes but provides no measurements.
+- [Nicola Green, *Becoming Virtual*, fieldnotes January 1995](https://ir.canterbury.ac.nz/bitstream/10092/4592/1/green_thesis.pdf), p. 55: central structure resembles a Greek temple with **four pillars and a roof**; the source also describes the in-game score as comparable to *elevator music*, an important caution against treating our ominous score as authenticated. A 1995 observation does not guarantee an unchanged 1991 software revision.
+- [Virtuality 1000CS technical and game listing](https://www.arcade-history.com/?id=12493&n=dactyl-nightmare&page=detail): original game includes Escher-like pillars and archways and both shoot-em-up and advanced Capture the Flag variants. Technical specifications are not a level-geometry blueprint.
+- [Computer Graphics World retrospective, May 1992 coverage](https://www.cgw.com/Publications/CGW/2002/Volume-25-Issue-3-March-2002-/GAMING-RETROSPECTIVE-25-sup-th-sup-Anniversary-P.aspx): contemporary period description confirms the surreal checkerboard setting but no numeric dimensions.
+
+**Calibrated reconstruction remains blocked by missing original pose and geometry evidence.** A defensible future measurement process needs multiple frames with identifiable static landmarks, known or estimated field of view, camera extrinsics, and uncertainty ranges. Without that, absolute scale is unidentifiable: a uniformly scaled scene can produce the same projection. The game should preserve correct topology and explicitly provisional ratios rather than assert false precision.
