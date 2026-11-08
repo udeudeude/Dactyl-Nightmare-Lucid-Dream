@@ -46,3 +46,8 @@ test('diagonal and combined inputs cannot exceed movement speed', () => {
   }
   assert.deepEqual(movementInput(.2,.3), {x:.2,z:.3});
 });
+
+test('solo opponent patrol stays on raised platform',()=>{
+ const p=platforms[2];const {patrol}=require('../js/geometry.js');
+ for(let t=0;t<1000;t+=.37){const pos=patrol(p,t);assert.equal(pos.y,2);assert.equal(groundAt(pos.x,pos.z,platforms,surfaces),2)}
+});
