@@ -14,6 +14,9 @@ test('phone-sized editor reopens imported frames and exports current edits witho
  await page.locator('#file').setInputFiles('dactyl-icon-v2.png');
  await expect(page.locator('#status')).toContainText('1 existing points retained');
  await page.locator('#name').fill('added');await page.locator('#frame').click({position:{x:90,y:90}});
+ // WebKit may quantize a click on a fractional layout coordinate by half a pixel.
+ const placed=await page.locator('#overlay circle').last().evaluate(el=>({u:Number(el.getAttribute('cx'))/180,v:Number(el.getAttribute('cy'))/180}));
+ expect(Math.abs(placed.u-.5)).toBeLessThan(1/180);expect(Math.abs(placed.v-.5)).toBeLessThan(1/180);
  await page.locator('#notes').fill('edited first');await page.locator('#save').click();await page.locator('#save').click();
  await expect(page.locator('#savedFrame option')).toHaveCount(3);
  await page.locator('#savedFrame').selectOption('1');
@@ -28,7 +31,7 @@ test('phone-sized editor reopens imported frames and exports current edits witho
  const pending=page.waitForEvent('download');await page.locator('#export').click();
  const download=await pending,data=JSON.parse(await fs.readFile(await download.path(),'utf8'));
  expect(data.frames).toHaveLength(2);expect(data.frames[0].timestamp).toBe(13);
- expect(data.frames[0].points).toEqual([{name:'corner.a',u:.25,v:.25},{name:'added',u:.5,v:.5}]);
+ expect(data.frames[0].points).toEqual([{name:'corner.a',u:.25,v:.25},{name:'added',...placed}]);
  expect(data.frames[1].notes).toBe('edited second without image');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  expect(errors).toEqual([]);
