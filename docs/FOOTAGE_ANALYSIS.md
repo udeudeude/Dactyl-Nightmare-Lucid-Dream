@@ -1,6 +1,6 @@
 # Original-hardware gameplay footage: acquisition and measurement dossier
 
-Updated 2026-11-08. **Status: footage identified, not yet downloaded or frame-analyzed.** Do not present this dossier as completed photogrammetry.
+Updated 2026-11-08. **Status: V03 acquired, checksum verified and object frames inspected; V01/V02 full videos still unavailable.** See [period object catalogue](PERIOD_VISUAL_TARGET.md). Calibrated photogrammetry has not been completed.
 
 ## Source inventory and provenance
 
@@ -8,7 +8,7 @@ Updated 2026-11-08. **Status: footage identified, not yet downloaded or frame-an
 | --- | --- | --- | --- | --- |
 | V01 | [Playing Dactyl Nightmare on Real 1990s VR Hardware](https://www.youtube.com/watch?v=ZnkpaIcumE8) (ctrl-alt-rees, 2022) | Modern recording of original Virtuality 1000CS hardware. [Licensed still](https://commons.wikimedia.org/wiki/File:Virtuality_VR_Dactyl_Nightmare_Arcade_Game.jpg) is 1008×638, captured from this video. | Camera turns, repeated platform edges, color/geometry, creature silhouette | Video stream could not be retrieved in this environment. |
 | V02 | [Kotaku original-hardware play, 2016](https://www.youtube.com/watch?v=L60wgPuuDpE) | Linked from [firsthand account](https://kotaku.com/the-man-whos-keeping-1990s-virtual-reality-machines-ali-1778990894). | Distinct viewpoints, avatar/weapon mechanics, collision and timing | Video stream not retrieved. |
-| V03 | [1991 GamePro TV Virtuality feature](https://vrtifacts.com/on-tv/) | Period television segment with original multiplayer footage, described by V-Rtifacts. | Independent early-version cross-check, distinguish period software revisions | Identify direct video link and retrieve if permitted. |
+| V03 | [1991 GamePro TV Virtuality feature](https://vrtifacts.com/on-tv/) | Period television segment with original multiplayer footage, described by V-Rtifacts. | Independent early-version cross-check, distinguish period software revisions | Acquired from GamePro archive; inspected 787–818 s. See period catalogue for checksum, date uncertainty and object findings. |
 | V04 | [1991 ABC Primetime Live virtual reality feature](https://www.youtube.com/watch?v=rVn3H93Ysaq) | Contemporary period television; Dactyl content must be verified, not assumed. | Secondary historical check | Not reviewed frame by frame. |
 
 Do not substitute Polygon Nightmare, Dactyl Nightmare 2, or other recreations for 1991 original-hardware footage.

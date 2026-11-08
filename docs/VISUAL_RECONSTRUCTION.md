@@ -1,5 +1,10 @@
 # Visual reconstruction evidence and limits
 
+**Current target:** [period footage object catalogue](PERIOD_VISUAL_TARGET.md).
+The notes below preserve the earlier evidence trail. Its horizontal yellow ring,
+white avatar torso, uniform checker counts and box columns have been superseded
+by directly inspected GamePro footage. Numeric world dimensions remain provisional.
+
 This pass replaces provisional scenery with newly written polygon geometry. It is
 not a recovery of the original assets or a claim of exact 1991 fidelity.
 
