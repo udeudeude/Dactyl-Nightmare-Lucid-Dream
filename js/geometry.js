@@ -71,5 +71,12 @@
     return { x: x / length, z: z / length };
   }
 
-  return { stairs, groundAt, clipNear, movementInput };
+  // Keep the provisional solo opponent on its assigned elevated platform.
+  // A rectangular patrol is deterministic and never crosses the unsupported void.
+  function patrol(platform, time, margin = 1.5) {
+    const extent = Math.max(0,platform.w/2-margin);
+    return {x:platform.x+Math.sin(time*.55)*extent*.65,
+      y:platform.y,z:platform.z+Math.sin(time*.7)*extent*.65};
+  }
+  return { stairs, groundAt, clipNear, movementInput, patrol };
 });
