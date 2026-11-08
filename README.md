@@ -45,3 +45,7 @@ release differences. The manual is not proof of every launch-1991 software detai
 ## Wired Apple Earbud Remote
 
 Optional single/double/triple center-click control for iPhone Cardboard. Enable and verify on the game's main menu before entering the viewer. Default actions: single fire, double recenter, triple menu. Based on the tested [earbud-controller-](https://github.com/udeudeude/earbud-controller-) Media Session experiment. See [setup, limitations and acceptance tests](docs/EARBUD_REMOTE.md).
+
+## Earbud one/two/three-shot option
+
+The optional **Set all clicks to fire (1 / 2 / 3)** preset maps a recognized single click to one shot, double click to two, and triple click to three. Shots are queued (maximum 12) and fired individually at the existing 1.8-second interval. iOS may combine or lose very rapid physical presses, so this is not unlimited or guaranteed lossless firing. Settings are saved locally. See [earbud instructions](docs/EARBUD_REMOTE.md) and the [test lab](https://github.com/udeudeude/earbud-controller-).
