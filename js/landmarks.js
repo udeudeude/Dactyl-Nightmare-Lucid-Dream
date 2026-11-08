@@ -1,0 +1,10 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DactylLandmarks=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){'use strict';
+const VERSION=1;
+function normalizePoint(x,y,width,height){if(![x,y,width,height].every(Number.isFinite)||width<=0||height<=0||x<0||y<0||x>width||y>height)throw Error('Point outside image');return {u:x/width,v:y/height}}
+function pixelPoint(point,width,height){if(!point||![point.u,point.v,width,height].every(Number.isFinite)||width<=0||height<=0||point.u<0||point.u>1||point.v<0||point.v>1)throw Error('Invalid normalized point');return {x:point.u*width,y:point.v*height}}
+function validate(data){if(!data||data.schema!==VERSION||!Array.isArray(data.frames))throw Error('Invalid landmark file');for(const f of data.frames){if(typeof f.source!=='string'||!f.source.trim()||!Number.isFinite(f.timestamp)||f.timestamp<0||!Number.isInteger(f.width)||!Number.isInteger(f.height)||f.width<=0||f.height<=0||!Array.isArray(f.points))throw Error('Invalid frame');for(const p of f.points){if(typeof p.name!=='string'||!p.name.trim()||!Number.isFinite(p.u)||!Number.isFinite(p.v)||p.u<0||p.u>1||p.v<0||p.v>1)throw Error('Invalid point')}}return data}
+function frame({source,timestamp,width,height,notes='',points=[]}){return validate({schema:VERSION,frames:[{source:String(source).trim(),timestamp:Number(timestamp),width:Number(width),height:Number(height),notes:String(notes),points}]}).frames[0]}
+function pairs(a,b){const map=new Map(b.points.map(p=>[p.name,p]));return a.points.filter(p=>map.has(p.name)).map(p=>({name:p.name,a:[p.u,p.v],b:[map.get(p.name).u,map.get(p.name).v]}))}
+function distances(points){return points.map((p,i)=>points.slice(i+1).map(q=>({from:p.name,to:q.name,pixels:Math.hypot((p.u-q.u),(p.v-q.v))}))).flat()}
+return {VERSION,normalizePoint,pixelPoint,validate,frame,pairs,distances};
+});

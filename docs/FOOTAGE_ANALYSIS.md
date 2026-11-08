@@ -42,3 +42,9 @@ Do not substitute Polygon Nightmare, Dactyl Nightmare 2, or other recreations fo
 | Central ring outer diameter / center width | unknown | ratio | pending footage | unmeasured | unknown | 4.10/12 provisional |
 
 **Hard stop:** Until video frames are actually acquired and analyzed, none of these provisional ratios can be promoted to historical measurements. A screen grab alone is insufficient for camera calibration.
+
+## Landmark workbench (2026-11-08)
+
+A browser-based [frame landmark annotation workbench](../landmarks.html) is now available. It runs entirely on the user's phone or computer, accepts a local image without uploading it, and exports normalized coordinates and timestamped landmark names as JSON. Its code is in `js/landmarks.js`, with tests in `tests/landmarks.test.cjs`.
+
+The workbench is **an annotation tool, not a calibrated reconstruction solver**. No original images are included. For reproducibility, use the source and timestamps in `PERIOD_VISUAL_TARGET.md`, record the actual source-frame pixel dimensions and crop, and annotate the same fixed architecture landmarks in multiple views. Camera pose, lens model, shot cuts, and absolute scale still need solving before replacing game geometry.
