@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const V=require('../js/visuals.js');
 const G=require('../js/geometry.js');
-const platforms=[{x:0,z:0,w:12,y:0},{x:-13,z:0,w:10,y:0},{x:13,z:0,w:10,y:0},{x:0,z:-13,w:10,y:2},{x:0,z:13,w:10,y:2}];
+const platforms=[{x:0,z:0,w:12,y:0},{x:-13,z:0,w:10,y:2},{x:13,z:0,w:10,y:2},{x:0,z:-13,w:10,y:2},{x:0,z:13,w:10,y:2}];
 const stairs=G.stairs(platforms),faces=V.arena(platforms,stairs);
 function contains(f,x,z){return x>=Math.min(...f.v.map(v=>v[0]))-1e-8&&x<=Math.max(...f.v.map(v=>v[0]))+1e-8&&z>=Math.min(...f.v.map(v=>v[2]))-1e-8&&z<=Math.max(...f.v.map(v=>v[2]))+1e-8;}
 test('visual floors cover every walkable platform sample at collision height',()=>{
@@ -28,4 +28,21 @@ test('distant stars align between stereo viewports without vertical disparity',(
   V.drawStars({fillRect:(x,...r)=>right.push([x-400,...r])},400,400,300,basis,300);
   assert.ok(left.length>0);assert.deepEqual(left,right);
   for(const s of V.stars)assert.ok(Math.abs(Math.hypot(...s)-1)<1e-12);
+});
+
+test('all four outer platforms are raised and connected to the low center',()=>{
+ assert.equal(platforms[0].y,0);
+ assert.ok(platforms.slice(1).every(p=>p.y===2));
+ for(const p of platforms.slice(1)){
+  const samples=stairs.filter(step=>Math.abs(p.x)>0?Math.abs(step.x)>0&&Math.sign(step.x)===Math.sign(p.x):Math.abs(step.z)>0&&Math.sign(step.z)===Math.sign(p.z));
+  assert.equal(samples.length,8);assert.equal(samples[0].y,.25);assert.equal(samples[7].y,2);
+ }
+});
+test('historically reported central doughnut is an open faceted ring',()=>{
+ const ring=faces.filter(f=>f.part==='central-ring');
+ assert.equal(ring.length,36);
+ assert.ok(ring.every(f=>f.v.flat().every(Number.isFinite)));
+ const tops=ring.filter(f=>f.v.every(v=>v[1]===.83));
+ assert.equal(tops.length,12);
+ assert.ok(tops.every(f=>!contains(f,0,0)));
 });
