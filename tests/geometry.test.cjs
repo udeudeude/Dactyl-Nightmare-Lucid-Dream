@@ -61,7 +61,7 @@ test('ring collision includes player clearance and respects ring orientation',()
  const {ringBlocks}=require('../js/geometry.js');
  assert.equal(ringBlocks(0,0,platforms),true);
  assert.equal(ringBlocks(0,1,platforms),false);
- assert.equal(ringBlocks(0,.45,platforms),false);
- assert.equal(ringBlocks(0,.3,platforms),true);
+ assert.equal(ringBlocks(0,.45,platforms),true);
+ assert.equal(ringBlocks(0,.7,platforms),false);
  assert.equal(ringBlocks(13.3,0,platforms),true);
 });
