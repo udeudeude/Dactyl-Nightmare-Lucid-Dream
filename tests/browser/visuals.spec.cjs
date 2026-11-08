@@ -13,7 +13,7 @@ test('reference views render all rebuilt objects in mono and stereo',async({page
    [me.x,me.y,me.z]=position;yaw=angle;pitch=tilt;cameraBasis=null;build();
    let vertices=0,invalid=0;const original=g.lineTo.bind(g);
    g.lineTo=(x,y)=>{vertices++;if(!Number.isFinite(x+y))invalid++;original(x,y);};
-   if(stereo){draw(0,W/2,-1);draw(W/2,W/2,1);}else draw(0,W,0);
+   if(stereo){draw(0,W/2,-1,true);draw(W/2,W/2,1,true);}else draw(0,W,0,true);
    g.lineTo=original;
    return {vertices,invalid,parts:[...new Set(faces.map(f=>f.part))],faces:faces.length};
   },{position,angle,tilt,stereo});
