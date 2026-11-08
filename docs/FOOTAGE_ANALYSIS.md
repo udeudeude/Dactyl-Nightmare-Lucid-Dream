@@ -48,3 +48,19 @@ Do not substitute Polygon Nightmare, Dactyl Nightmare 2, or other recreations fo
 A browser-based [frame landmark annotation workbench](../landmarks.html) is now available. It runs entirely on the user's phone or computer, accepts a local image without uploading it, and exports normalized coordinates and timestamped landmark names as JSON. Its code is in `js/landmarks.js`, with tests in `tests/landmarks.test.cjs`.
 
 The workbench is **an annotation tool, not a calibrated reconstruction solver**. No original images are included. For reproducibility, use the source and timestamps in `PERIOD_VISUAL_TARGET.md`, record the actual source-frame pixel dimensions and crop, and annotate the same fixed architecture landmarks in multiple views. Camera pose, lens model, shot cuts, and absolute scale still need solving before replacing game geometry.
+
+### Reopening measurements on a phone
+
+Import a saved landmark JSON file, then choose a frame from **Saved frame**.
+Its timestamp, notes and point list reopen without requiring the original image.
+Choose the matching local image to continue placing points; its dimensions must
+match the saved frame. Check source and timestamp yourself—equal pixel dimensions
+cannot prove image identity. Wrong-sized or unreadable images retain the points.
+
+**Save frame** updates the selected frame instead of adding duplicates. Changing
+frames preserves valid current edits; **Start another frame** retains saved work
+and clears the image association. Export includes current edits. Everything remains
+local and in memory until exported; images are neither uploaded nor included in
+JSON. Automated Chromium/WebKit tests cover importing, reopening, editing, image
+mismatch, repeated saves and export at a phone-sized viewport. Physical iPhone
+Files/download behavior still needs checking.
