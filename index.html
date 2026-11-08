@@ -29,6 +29,14 @@ if(!remote.supported)status.textContent='Media Session API unavailable on this b
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&remote.enabled)status.textContent='Backgrounded. Earbud delivery may continue; game commands are suspended while menu is open.';else if(remote.enabled&&remote.resumePending)status.textContent='Audio interrupted. Tap Resume earbud controls.'});
 window.dactylEarbudRemote=remote;
 })();
+</script><script defer src="https://cloud.umami.is/script.js" data-website-id="f374a945-0ea2-41ed-8eb7-4b6ab6933f9a"></script>
+<script>
+document.addEventListener('click', function(e) {
+  const control=e.target.closest('button,a,[role="button"]');
+  if (!control || !window.umami || typeof umami.track !== 'function') return;
+  const label=(control.id+' '+(control.getAttribute('aria-label')||'')+' '+(control.textContent||'').slice(0,60)).toLowerCase();
+  if (/play|start|join|cardboard/i.test(label)) umami.track('app-use',{project:'dactyl-nightmare',action:'interaction'});
+},true);
 </script></html>
 <script src="./js/head-tracking.js"></script><script src="./js/relay-client.js"></script><script src="./js/multiplayer-relay.js"></script>
 
