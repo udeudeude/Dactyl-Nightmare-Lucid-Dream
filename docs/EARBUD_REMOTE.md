@@ -13,8 +13,8 @@ This optional controller is integrated into the main game page, including Google
 | Physical pattern | Browser event | Default |
 | --- | --- | --- |
 | Single center click | `pause` | Fire once |
-| Double click | `nexttrack` | Recenter head tracking |
-| Triple click | `previoustrack` | Open menu |
+| Double click | `nexttrack` | Recenter head tracking (optional: queue two shots) |
+| Triple click | `previoustrack` | Open menu (optional: queue three shots) |
 
 Each pattern is a **discrete event**, not a press/release button. Firing is limited by the game's existing cooldown. Never use these for continuous movement. iOS may group rapid single clicks into double or triple commands, so press deliberately. Double and triple commands arrive later because iOS must resolve the click sequence.
 
@@ -37,3 +37,18 @@ Each pattern is a **discrete event**, not a press/release button. Firing is limi
 5. Verify Cardboard head tracking and existing Bluetooth gamepad / second-phone controls remain functional.
 
 No original game audio samples or historical gameplay mechanics are changed by this feature.
+
+## Optional: all clicks fire (1 / 2 / 3)
+
+Select **Set all clicks to fire (1 / 2 / 3)** in the game's Apple Earbud Remote settings, or assign **Fire twice (queued)** to double-click and **Fire three times (queued)** to triple-click independently. Single-click continues to queue one shot. The previous defaults (double = recenter, triple = menu) are preserved until the option is selected. The configuration is stored in the browser and can be changed at any time.
+
+**Important: this does not make the gun fully automatic, nor guarantee that every physical press is counted.** Safari receives media commands after iOS interprets a click group. When recognized, one `pause` adds one shot, one `nexttrack` adds two shots, and one `previoustrack` adds three shots. Very fast, longer sequences may be grouped, ignored, delayed, intercepted, or interpreted inconsistently; no raw press/release count is available. Consequently ten rapid physical clicks need not yield ten shots. An extra `play` command is not counted as a click.
+
+The game applies its **existing 1.8-second shot interval** to every shot. A recognized triple-click becomes three separate projectiles over approximately 3.6 seconds, beginning immediately if ready; a double-click becomes two over at least 1.8 seconds. Up to **12 pending shots** are retained, with overflow explicitly reported in the settings; queued shots are discharged in subsequent frames, aimed where you are looking **at the time of each shot**, not at the original click time. Queued shots are cleared when the game menu opens, the tab is hidden, the controller is disabled, or the player respawns. Successful shots, rather than raw button events or pending shots, advance the reconstructed ten-shot bird counter. The original trigger/cooldown implementation is still provisional outside the manual's documented threshold.
+
+### Real-device acceptance for this mode
+
+1. With sound effects audible, verify that single/double/triple report `pause`/`nexttrack`/`previoustrack` in the setup test, and that the all-fire preset shows the expected mappings.
+2. In gameplay, after a triple-click, check that the gun produces **three distinct shots** spread over time, rather than three simultaneous projectiles or one ignored event.
+3. Run the original tester's **ten rapid singles** experiment and compare the *known physical presses* against the **weighted** media commands: pause = 1, nexttrack = 2, previoustrack = 3. Any mismatch is evidence that iOS/Safari cannot recover every click. Repeat at different press speeds.
+4. Confirm interruption, backgrounding, menu opening and disabled controller discard queued shots.

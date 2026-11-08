@@ -56,3 +56,9 @@ Unit tests cover idle/no-shot behavior, the ninth/tenth shot boundary, one pendi
 attack, reset and input bounds. Browser regression tests exercise actual `shoot()`
 and `tick()` integration. No physical Virtuality unit, original executable, or
 physical iPhone has been tested in this pass.
+
+## Bird targeting and the separate arcade time limit (2026-11-08)
+
+The original 1000CS service manual, printed page **1.14**, documents **two independent options**: `b<n>` bird attacks after `n` shots (default **10**), and `t<n>` match duration in seconds (default **180**). The ten-shot trigger **is not the match timer**, and no primary evidence currently establishes that it was designed to shorten paid arcade sessions. A 1993 player account [recalled by Allen Huffman](https://subethasoftware.com/2014/03/) says the pterodactyl could be shot *at*, but does not document whether it can be wounded, killed or repelled in the original 1991 program. The [1994 SP derivative](https://www.arcade-history.com/game/12495/dactyl-nightmare-sp) explicitly mentions shooting the bird first, but later SU2000 mechanics must not be silently assumed for 1000CS. A scholarly [description of the original](https://www.sciencedirect.com/topics/computer-science/virtual-computer) describes a score-based multiplayer match ending when time expires and bird-caused loss of one point; the precise software revision is not verified.
+
+**Current recreation:** player projectiles do not collide with or damage the bird; the bird trigger counts successfully fired shots, including any shot eventually produced by the earbud burst queue. Pending input requests are not shots. The game currently lacks the documented 180-second match-end and point-loss mechanics. Do not characterize the bird as a credit-expiration mechanism or implement speculative bird damage without further evidence.
