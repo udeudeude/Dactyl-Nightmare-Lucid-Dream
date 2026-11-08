@@ -9,6 +9,7 @@ const PUBLIC_FILES = new Map([
   ['/manifest.webmanifest',['manifest.webmanifest','application/manifest+json']],
   ['/icon.svg',['icon.svg','image/svg+xml']], ['/dactyl-icon-v2.png',['dactyl-icon-v2.png','image/png']],
   ['/js/geometry.js',['js/geometry.js','text/javascript']],
+  ['/js/visuals.js',['js/visuals.js','text/javascript']],
   ['/js/rules.js',['js/rules.js','text/javascript']],
   ['/js/orientation.js',['js/orientation.js','text/javascript']],
   ['/js/head-tracking.js',['js/head-tracking.js','text/javascript']],
