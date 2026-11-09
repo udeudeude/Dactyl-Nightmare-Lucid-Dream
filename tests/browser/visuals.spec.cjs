@@ -15,7 +15,7 @@ test('reference views render all rebuilt objects in mono and stereo',async({page
    vr=stereo;document.body.classList.toggle('vr',stereo);build();
    let vertices=0,invalid=0;const original=g.lineTo.bind(g);
    g.lineTo=(x,y)=>{vertices++;if(!Number.isFinite(x+y))invalid++;original(x,y);};
-   if(stereo){draw(0,W/2,-1);draw(W/2,W/2,1);}else draw(0,W,0);
+   if(stereo){draw(0,W/2,-1,true);draw(W/2,W/2,1,true);}else draw(0,W,0,true);
    g.lineTo=original;
    return {vertices,invalid,parts:[...new Set(faces.map(f=>f.part))],faces:faces.length};
   },{position,angle,tilt,stereo});
@@ -24,7 +24,7 @@ test('reference views render all rebuilt objects in mono and stereo',async({page
   for(const part of ['checks','column','arch','ring','marker','weapon','hand','bird','avatar'])expect(result.parts).toContain(part);
   expect(await page.evaluate(()=>vr)).toBe(stereo);
   if(stereo)await expect(page.locator('#pad')).toBeHidden();
-  await page.locator('canvas').screenshot({path:info.outputPath(`${name}.png`)});
+  await page.screenshot({path:info.outputPath(`${name}.png`)});
  }
  expect(errors).toEqual([]);
 });

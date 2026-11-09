@@ -33,7 +33,7 @@ provided for repeatable inspection, not calibrated photogrammetry.
 | --- | --- | --- | --- |
 | Boards | 800–805 s aerial: blue/white center and red/white outer boards. The earlier approximate outer-board corner coordinates were withdrawn after they failed a planar consistency check; do not use them as measurements. | Different floor patterns: center 3×3 checks per quadrant, outer 2×2. Central one-cell cross and wider perimeter are supported by the planar samples below; outer proportions remain provisional. | Existing 12/10 widths, 13 spacing and 2 rise retained; no camera calibration or recovered scale. |
 | Cross/perimeter | Grey in period capture; teal in the independently inspected 2022 still. | Neutral grey-green palette for this period target, no textured or reflective surface. | Analog transfer and software revision may account for disagreement; RGB values are not original palette data. |
-| Rings | 788 s outer platform; 812 s close central view: upright rust/orange exterior with clipped corners, square opening. At 812 s opening approximately (336,570)–(584,837). | Upright octagonal exterior, square aperture, visible thickness and inside walls, center and outer boards. | 2.8 height, 1.1×1.2 aperture, .44 depth and repeated orientation are modeling estimates. Original collision unknown; remains decorative. |
+| Rings | 788 s outer platform; 812 s close central view: upright rust/orange exterior with clipped corners, square opening. At 812 s opening approximately (336,570)–(584,837). | Upright octagonal exterior, square aperture, visible thickness and inside walls, center and outer boards. | 2.8 height, 1.1×1.2 aperture, .44 depth and repeated orientation are modeling estimates. Original collision unknown; provisional player-radius blocking has been implemented. |
 | Columns | 812 s right column around x=1370, shaft y=235–720, flared base y=720–807. 800–805 s central roof corners. | Eight-sided shafts, broad flared feet and capitals. | Facet count, radii, height and hidden details inferred. |
 | Lintels | 804 s outer frame; 816 s angled lower edges around x=1020–1630, y=124–270. | Flat top, angular arch soffit; open square frame, no solid roof or tower. | Exact outer frame topology/number of bays not fully resolved; four-side repetition retained as inference. |
 | Corner markers | 800 s four pale central cones; 803–805 s green outer markers. | Low faceted cones, central yellow/outer green. | Exact count on every outer board and dimensions inferred; decorative. |
@@ -65,7 +65,7 @@ disparity under rotated views. Browser tests capture outer, central, aerial and
 stereo views and enforce finite drawing coordinates and a scene face budget.
 These are implementation checks, not a claim of historical pixel matching.
 
-The production painter renderer can still misorder overlapping polygons; original
+The default WebGL depth-buffered renderer now resolves overlapping polygons when WebGL is available; the original Canvas painter remains a fallback and can still misorder geometry. Original
 obstacle collision and independent tracked-gun input remain unresolved. No original
 camera calibration, withheld-view reprojection fit, physical iPhone test or exact
 asset recovery has been completed. Do not promote any estimated dimensions to
@@ -103,3 +103,7 @@ spacing, elevation, stairs, ring collision or spawn locations. Original boundary
 occlusion, analog distortion, revision and absolute scale remain unresolved.
 A planar measurement says nothing about objects above/below that plane. Recovering
 stairs/elevations still requires multiple reliably matched views and a camera fit.
+
+## Rendering integration (2026-11-08)
+
+See pull request #17. The five-platform scene uses depth-tested polygon triangles by default on devices supporting WebGL. A separate black/star background canvas sits **behind** the transparent three-dimensional layer, and the crosshair canvas remains **in front**. This prevents stars from showing through opaque columns and floors and removes the old whole-polygon average-depth ordering artifacts. Each Cardboard eye clears its own depth buffer. The 2D painter remains a functional fallback on devices without WebGL. Unit and browser checks exercise geometric triangulation, near/far occlusion, transparency, and scene ordering; no physical iPhone or headset test has yet established artifact-free performance in Safari. The rendered scene and original ring collisions still rely on inferred shape dimensions.
