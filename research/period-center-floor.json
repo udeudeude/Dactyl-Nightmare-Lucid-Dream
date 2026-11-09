@@ -1,0 +1,16 @@
+{
+  "source": "V03 GamePro S01E23 archive derivative",
+  "url": "https://archive.org/download/gamepro-tv/Gamepro%20S01E23%20%281991%29.ia.mp4",
+  "sha1": "d2e408d6fb0b418f84765af66d5a67be2c5508e9",
+  "timestamp": 800,
+  "width": 1920,
+  "height": 1080,
+  "corners": [[549,251],[1039,200],[1425,918],[546,1075]],
+  "cornerErrorPixels": 12,
+  "edgeErrorPixels": 8,
+  "notes": "Manual approximate central-board top-surface corners. Near-left corner is close to image crop and partly ambiguous. Two scanlines on the same plane in ONE frame; not independent camera validation. Edge points bracket transitions in original RGB samples. Errors are declared sensitivity assumptions, not statistically estimated confidence. Do not use these corners to infer platform spacing or elevation.",
+  "scanlines": [
+    {"name":"near-row-a","points":[[928,870],[1034,853],[1129,837],[1216,823],[1312,807]]},
+    {"name":"near-row-b","points":[[940,920],[1049,902],[1147,885],[1236,870],[1331,854]]}
+  ]
+}

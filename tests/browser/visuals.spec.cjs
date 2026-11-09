@@ -10,7 +10,9 @@ test('reference views render all rebuilt objects in mono and stereo',async({page
   ['stereo',[0,0,-4],0,.12,true]
  ]){
   const result=await page.evaluate(({position,angle,tilt,stereo})=>{
-   [me.x,me.y,me.z]=position;yaw=angle;pitch=tilt;cameraBasis=null;build();
+   [me.x,me.y,me.z]=position;yaw=angle;pitch=tilt;cameraBasis=null;
+   // tick keeps repainting while simulation is paused; retain the requested mode.
+   vr=stereo;document.body.classList.toggle('vr',stereo);build();
    let vertices=0,invalid=0;const original=g.lineTo.bind(g);
    g.lineTo=(x,y)=>{vertices++;if(!Number.isFinite(x+y))invalid++;original(x,y);};
    if(stereo){draw(0,W/2,-1);draw(W/2,W/2,1);}else draw(0,W,0);
@@ -20,6 +22,8 @@ test('reference views render all rebuilt objects in mono and stereo',async({page
   expect(result.invalid).toBe(0);expect(result.vertices).toBeGreaterThan(100);
   expect(result.faces).toBeLessThan(2000);
   for(const part of ['checks','column','arch','ring','marker','weapon','hand','bird','avatar'])expect(result.parts).toContain(part);
+  expect(await page.evaluate(()=>vr)).toBe(stereo);
+  if(stereo)await expect(page.locator('#pad')).toBeHidden();
   await page.locator('canvas').screenshot({path:info.outputPath(`${name}.png`)});
  }
  expect(errors).toEqual([]);
