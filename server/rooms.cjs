@@ -4,6 +4,7 @@ const Geometry=require('../js/geometry.js');
 const Visuals=require('../js/visuals.js');
 const Projectiles=require('../js/projectiles.js');
 const {MatchClock}=require('../js/rules.js');
+const Motion=require('./movement.cjs');
 const WORLD=Projectiles.makeWorld(Visuals.arena(Geometry.PLATFORMS,Geometry.stairs(Geometry.PLATFORMS)));
 const SPAWNS = [{x:-13,y:2,z:3},{x:13,y:2,z:3},{x:3,y:2,z:-13},{x:3,y:2,z:13}];
 const GRACE_MS = 30000;
@@ -43,10 +44,12 @@ class Rooms {
       if (room.players.size >= 4) throw new RoomError('room_full');
       const slot = SPAWNS.findIndex((_, i) => ![...room.players.values()].some(p => p.slot === i));
       player = { id: randomUUID(), token: randomBytes(24).toString('hex'), slot,
-        ...SPAWNS[slot], score: 0, epoch: 0, lastShot: -Infinity, shieldUntil: this.now() + 4000 };
+        ...SPAWNS[slot], score: 0, epoch: 0, lastShot: -Infinity, shieldUntil: this.now() + 4000,
+        moveAt:this.now(),moveCredit:Motion.START_CREDIT,birdShots:0,birdGraceUntil:0 };
       room.players.set(player.id, player);
     }
     player.socket = socket; player.disconnectedAt = null;
+    player.moveAt=this.now();player.moveCredit=Motion.START_CREDIT;
     socket.player = player; socket.room = room;
     this.send(socket, { type: 'welcome', v: 1, room: room.code, id: player.id, token: player.token,
       self: this.publicPlayer(player), shots: room.shots, serverTime: this.now(),match:this.matchStatus(room) });
@@ -86,6 +89,8 @@ class Rooms {
           player.score=0;player.epoch++;
           Object.assign(player,SPAWNS[player.slot]);
           player.shieldUntil=this.now()+4000;player.lastShot=-Infinity;
+          player.moveAt=this.now();player.moveCredit=Motion.START_CREDIT;
+          player.birdShots=0;player.birdGraceUntil=0;
         }
         this.broadcast(room,{type:'match_start',match:this.matchStatus(room),serverTime:this.now(),
           players:[...room.players.values()].map(p=>this.publicPlayer(p))});
@@ -98,7 +103,29 @@ class Rooms {
           Math.abs(message.x) > 40 || Math.abs(message.z) > 40 || message.y < -12 || message.y > 20) throw new RoomError('invalid_position');
       // A delayed pre-hit packet must not undo a server-issued respawn.
       if (message.epoch !== p.epoch) return;
-      p.x = message.x; p.y = message.y; p.z = message.z;
+      if(room.phase!=='running')return;
+      // Solo and phone clients currently respawn locally at the west spawn
+      // after falling. Verify that the server had already observed a real fall,
+      // then apply this player's *own* authoritative room spawn instead.
+      const localSpawn=SPAWNS[0];
+      if(p.y< -4&&Math.abs(message.x-localSpawn.x)<.02&&
+         Math.abs(message.z-localSpawn.z)<.02&&Math.abs(message.y-localSpawn.y)<.02){
+        Object.assign(p,SPAWNS[p.slot]);p.epoch++;p.shieldUntil=this.now()+4000;
+        p.moveAt=this.now();p.moveCredit=Motion.START_CREDIT;
+        this.send(socket,{type:'correction',reason:'respawn',self:this.publicPlayer(p)});
+        this.broadcast(room,this.snapshot(room));return;
+      }
+      const now=this.now(),elapsed=Math.max(0,now-p.moveAt);
+      p.moveAt=now;
+      p.moveCredit=Motion.replenish(p.moveCredit,elapsed);
+      const result=Motion.assess(p,message,{credit:p.moveCredit,now,elapsedMs:elapsed,
+        birdGraceUntil:p.birdGraceUntil});
+      if(!result.ok){
+        this.send(socket,{type:'correction',reason:result.reason,self:this.publicPlayer(p)});
+        return;
+      }
+      p.moveCredit=Math.max(0,p.moveCredit-result.cost);
+      Object.assign(p,result.position);
     } else if (message.type === 'shot') {
       if(room.phase!=='running')return;
       const b = message.b;
@@ -106,6 +133,8 @@ class Rooms {
           Math.abs(Math.hypot(b.vx,b.vy-3,b.vz)-13) > .1) throw new RoomError('invalid_shot');
       if (message.epoch !== p.epoch || this.now() - p.lastShot < SHOT_INTERVAL_MS) return;
       p.lastShot = this.now();
+      p.birdShots=(p.birdShots||0)+1;
+      if(p.birdShots>=10){p.birdShots=0;p.birdGraceUntil=this.now()+22000;}
       // Identity, muzzle, lifetime and score come from server state, never from
       // client-supplied owner/source/target/score fields.
       const shot = { id:randomUUID(), owner:p.id, x:p.x, y:p.y+1.65, z:p.z,
@@ -152,6 +181,7 @@ class Rooms {
           if(victim){
             Object.assign(victim,SPAWNS[victim.slot]);victim.epoch++;
             victim.shieldUntil=this.now()+4000;
+            victim.moveAt=this.now();victim.moveCredit=Motion.START_CREDIT;
             this.broadcast(room,{type:'hit',shot:b.id,source:b.owner,target:victim.id,self:this.publicPlayer(victim)});
             this.broadcast(room,this.snapshot(room));
           }

@@ -14,8 +14,10 @@ test('real WebSockets join four peers, reject fifth and survive the creator leav
   for(let i=0;i<3;i++){const p=await connect(t,service.url);p.send({type:'hello',v:1,action:'join',room:welcome.room});await p.wait('welcome');peers.push(p);}
   const fifth=await connect(t,service.url);fifth.send({type:'hello',v:1,action:'join',room:welcome.room});assert.equal((await fifth.wait('error')).code,'room_full');
   host.send({type:'leave'});await until(()=>service.rooms.rooms.get(welcome.room).players.size===3);
-  peers[0].send({type:'state',x:4,y:0,z:0,epoch:0,source:'spoof',score:999});
-  await until(()=>peers[1].messages.find(m=>m.type==='snapshot'&&m.players.some(p=>p.x===4)));
+  peers[0].send({type:'start'});
+  await peers[0].wait('match_start');
+  peers[0].send({type:'state',x:13,y:2,z:3.35,epoch:1,source:'spoof',score:999});
+  await until(()=>peers[1].messages.find(m=>m.type==='snapshot'&&m.players.some(p=>p.x===13&&p.z>3.3)));
   assert.equal(service.rooms.rooms.get(welcome.room).players.size,3);
 });
 test('actual browser transport reconnects after a dropped socket and preserves seat',async t=>{

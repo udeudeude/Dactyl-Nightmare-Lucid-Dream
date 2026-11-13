@@ -39,8 +39,8 @@ test('positions must be finite and bounded; untrusted scores and sources are ign
 });
 test('server enforces shot identity, muzzle, rate, velocity and one score per projectile',()=>{
   const f=fixture(),victim=f.join(),overlapping=f.join();f.rooms.receive(f.host,{type:'start'});f.setTime(5000);
-  for(const s of [victim,overlapping])f.rooms.receive(s,{type:'state',x:-13,y:2,z:5,epoch:1});
-  f.rooms.receive(f.host,{type:'state',x:-13,y:2,z:3,epoch:1});
+  for(const s of [victim,overlapping])Object.assign(s.player,{x:-13,y:2,z:5});
+  Object.assign(f.host.player,{x:-13,y:2,z:3});
   assert.throws(()=>f.rooms.receive(f.host,{type:'shot',b:{vx:100,vy:3,vz:13},epoch:1}),/invalid_shot/);
   const msg={type:'shot',epoch:1,b:{x:99,y:99,z:99,vx:0,vy:3,vz:13,owner:victim.player.id,ttl:999}};
   f.rooms.receive(f.host,msg);f.rooms.receive(f.host,msg);
@@ -67,8 +67,8 @@ test('a wall shields opponents and server broadcasts shot removal',()=>{
   const f=fixture(),victim=f.join(),shooter=f.host;
   f.rooms.receive(shooter,{type:'start'});f.setTime(5000);
   // West board column is centered at x=-15.15,z=2.15.
-  f.rooms.receive(shooter,{type:'state',x:-16.5,y:2,z:2.15,epoch:1});
-  f.rooms.receive(victim,{type:'state',x:-13.8,y:2,z:2.15,epoch:1});
+  Object.assign(shooter.player,{x:-16.5,y:2,z:2.15});
+  Object.assign(victim.player,{x:-13.8,y:2,z:2.15});
   f.rooms.receive(shooter,{type:'shot',epoch:1,b:{vx:13,vy:3,vz:0}});
   for(let i=0;i<30;i++)f.rooms.advance(.02);
   assert.equal(shooter.player.score,0);
@@ -116,4 +116,30 @@ test('reconnected players receive remaining timer and a new round resets scores'
  assert.equal(f.host.player.score,0);
  assert.equal(f.host.player.epoch,prevEpoch+1);
  assert.equal(room.clock.endsAt,365000);
+});
+
+test('server rejects impossible and through-wall movement without disconnecting the player',()=>{
+ const f=fixture(),p=f.host.player;
+ f.rooms.receive(f.host,{type:'start'});
+ f.setTime(100);
+ f.rooms.receive(f.host,{type:'state',x:-13,y:2,z:3.35,epoch:1});
+ assert.equal(p.z,3.35);
+ f.rooms.receive(f.host,{type:'state',x:13,y:2,z:3,epoch:1});
+ assert.equal(p.x,-13);
+ assert.equal(f.host.messages.at(-1).reason,'speed');
+ // Stage a legitimate point just outside the center ring to test its path.
+ Object.assign(p,{x:0,y:0,z:.55,moveAt:100,moveCredit:1.2});
+ f.rooms.receive(f.host,{type:'state',x:0,y:0,z:-.55,epoch:1});
+ assert.equal(p.z,.55);
+ assert.equal(f.host.messages.at(-1).reason,'blocked');
+ assert.ok(!f.host.closed);
+});
+test('server respawns fallen players at their own slot and increments epoch',()=>{
+ const f=fixture(),other=f.join();f.rooms.receive(f.host,{type:'start'});
+ Object.assign(other.player,{x:8,y:-5.5,z:6,moveCredit:.8});
+ f.setTime(8000);
+ f.rooms.receive(other,{type:'state',x:-13,y:2,z:3,epoch:1});
+ assert.equal(other.player.epoch,2);
+ assert.deepEqual({x:other.player.x,y:other.player.y,z:other.player.z},{x:13,y:2,z:3});
+ assert.equal(other.messages.at(-2).reason,'respawn');
 });

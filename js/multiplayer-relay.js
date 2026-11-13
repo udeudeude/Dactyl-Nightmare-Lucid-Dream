@@ -69,6 +69,11 @@
       }else if(data.type==='shot'){
         // The local predicted shot is already visible and audible.
         if(data.b.owner!==id)shots.push({...data.b});else{recordDactylShot();const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
+      }else if(data.type==='correction'){
+        // The server never accepts teleporting through architecture or
+        // moving faster than the validated ground movement budget.
+        relay.epoch=data.self.epoch;score=data.self.score;
+        Object.assign(me,{x:data.self.x,y:data.self.y,z:data.self.z});
       }else if(data.type==='shot_end'){
         shots=shots.filter(shot=>shot.id!==data.shot);
       }else if(data.type==='hit'){
