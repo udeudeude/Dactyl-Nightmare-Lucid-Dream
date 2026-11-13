@@ -54,9 +54,12 @@
         document.querySelector('#matchResult').hidden=true;
       }else if(data.type==='match_end'){
         const players=data.players||[];
-        const ranked=players.slice().sort((a,b)=>b.score-a.score);
-        const standings=ranked.map((p,i)=>(i+1)+'. '+(p.id===id?'You':'Player '+(p.id.slice(0,4)))+': '+p.score).join(' · ');
-        finishMatch('Time up. Final standings: '+standings);
+        const ranked=DactylRules.standings(players);
+        const winners=ranked.filter(p=>p.winner).map(p=>p.id===id?'You':'Player '+p.id.slice(0,4));
+        const rows=ranked.map(p=>p.place+'. '+(p.id===id?'You':'Player '+p.id.slice(0,4))+
+          ': '+p.score).join(' · ');
+        finishMatch('Time up. '+(winners.length===1?'Winner: ':'Tied winners: ')+
+          winners.join(', ')+'. Final scores: '+rows);
       }else if(data.type==='snapshot' && data.sequence>latestSequence){
         latestSequence=data.sequence;
         const next={};
@@ -90,7 +93,9 @@
             if(Number.isInteger(event.epoch))relay.epoch=event.epoch;
             if(event.position)Object.assign(me,event.position);
             earbudFireQueue.clear();
-            birdNotice=event.kind==='seize'?'SEIZED BY THE DACTYL':'DROPPED BY THE DACTYL';
+            if(event.kind==='drop'&&data.self&&Number.isSafeInteger(data.self.score))
+              score=data.self.score;
+            birdNotice=event.kind==='seize'?'SEIZED BY THE DACTYL':'DROPPED BY THE DACTYL · −1 POINT';
             sound(event.kind==='seize'?'grab':'fall');
           }else if(event.kind==='miss')birdNotice='DACTYL MISSED';
         }
