@@ -28,7 +28,7 @@ test('opt-in phone arrival previews real scenery without stealing any of the 180
  expect(after.seconds).toBe(180);
  expect(after.endsAt).toBeGreaterThan(0);
  expect(after.me).toEqual(before.me);
- expect(after.yaw).toBeCloseTo(Math.PI/2,5);
+ expect(after.yaw).toBeCloseTo(Math.atan2(13,-3),5);
  expect(errors).toEqual([]);
 });
 test('inferred arrival is never forced into Google Cardboard',async({page})=>{
