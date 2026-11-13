@@ -24,5 +24,19 @@
       this.reset();return true;
     }
   }
-  return {BirdTrigger};
+  // 1000CS service manual printed p.1.14: t<n>, default 180 seconds.
+  // Absolute timestamps keep the server clock authoritative regardless of
+  // browser animation speed, dropped frames, or socket reconnection.
+  class MatchClock {
+    constructor(duration=180){
+      const seconds=Number(duration);
+      if(!Number.isInteger(seconds)||seconds<1||seconds>3600)throw Error('Invalid match duration');
+      this.duration=seconds;this.endsAt=null;
+    }
+    start(now){if(!Number.isFinite(now))throw Error('Invalid clock time');this.endsAt=now+this.duration*1000;return this.endsAt;}
+    reset(){this.endsAt=null;}
+    remaining(now){if(!Number.isFinite(now))throw Error('Invalid clock time');return this.endsAt===null?this.duration:Math.max(0,Math.ceil((this.endsAt-now)/1000));}
+    expired(now){return this.endsAt!==null&&now>=this.endsAt;}
+  }
+  return {BirdTrigger,MatchClock};
 });

@@ -50,6 +50,8 @@ async function start(v){
   initAudio();stopMotion();
   if(v){trackingStatus.textContent='Requesting motion access…';if(!await motion()||request!==startSerial)return;}
   if(request!==startSerial)return;
+  if(window.dactylRelay?.active)window.dactylRelay.send({type:'start'});
+  else beginSoloMatch();
   vr=v;playing=true;last=performance.now();clearInput();
   menu.style.display='none';document.body.classList.toggle('vr',v);
   gamepadMenuDown=gamepadCenterDown=false;

@@ -3,6 +3,7 @@ const { randomBytes, randomUUID } = require('node:crypto');
 const Geometry=require('../js/geometry.js');
 const Visuals=require('../js/visuals.js');
 const Projectiles=require('../js/projectiles.js');
+const {MatchClock}=require('../js/rules.js');
 const WORLD=Projectiles.makeWorld(Visuals.arena(Geometry.PLATFORMS,Geometry.stairs(Geometry.PLATFORMS)));
 const SPAWNS = [{x:-13,y:2,z:3},{x:13,y:2,z:3},{x:3,y:2,z:-13},{x:3,y:2,z:13}];
 const GRACE_MS = 30000;
@@ -23,7 +24,8 @@ class Rooms {
       if (this.rooms.size >= this.maxRooms) throw new RoomError('server_full');
       let code;
       do { code = 'LD-' + randomBytes(4).toString('hex').slice(0,8).toUpperCase(); } while (this.rooms.has(code));
-      room = { code, players: new Map(), shots: [], born: this.now(), sequence: 0 };
+      room = { code, players: new Map(), shots: [], born: this.now(), sequence: 0,
+        clock:new MatchClock(), phase:'lobby' };
       this.rooms.set(code, room);
     } else {
       if (typeof message.room !== 'string' || !/^LD-[0-9A-F]{8}$/.test(message.room)) throw new RoomError('invalid_room');
@@ -47,16 +49,19 @@ class Rooms {
     player.socket = socket; player.disconnectedAt = null;
     socket.player = player; socket.room = room;
     this.send(socket, { type: 'welcome', v: 1, room: room.code, id: player.id, token: player.token,
-      self: this.publicPlayer(player), shots: room.shots, serverTime: this.now() });
+      self: this.publicPlayer(player), shots: room.shots, serverTime: this.now(),match:this.matchStatus(room) });
     this.broadcast(room, this.snapshot(room));
     return player;
   }
   publicPlayer(p) {
     return { id:p.id, x:p.x, y:p.y, z:p.z, score:p.score, epoch:p.epoch, online:!!p.socket };
   }
+  matchStatus(room){
+    return {phase:room.phase,endsAt:room.clock.endsAt,duration:room.clock.duration};
+  }
   snapshot(room) {
     return { type:'snapshot', sequence:++room.sequence, serverTime:this.now(),
-      players:[...room.players.values()].map(p => this.publicPlayer(p)) };
+      match:this.matchStatus(room),players:[...room.players.values()].map(p=>this.publicPlayer(p)) };
   }
   send(socket, message) {
     if (!socket || socket.readyState !== 1) return;
@@ -74,6 +79,20 @@ class Rooms {
     }
     if (!socket.player) throw new RoomError('join_first');
     const p = socket.player, room = socket.room;
+    if(message.type==='start'){
+      if(room.phase!=='running'){
+        room.phase='running';room.clock.start(this.now());room.shots=[];
+        for(const player of room.players.values()){
+          player.score=0;player.epoch++;
+          Object.assign(player,SPAWNS[player.slot]);
+          player.shieldUntil=this.now()+4000;player.lastShot=-Infinity;
+        }
+        this.broadcast(room,{type:'match_start',match:this.matchStatus(room),serverTime:this.now(),
+          players:[...room.players.values()].map(p=>this.publicPlayer(p))});
+        this.broadcast(room,this.snapshot(room));
+      }
+      return;
+    }
     if (message.type === 'state') {
       if (!['x','y','z'].every(k => Number.isFinite(message[k])) ||
           Math.abs(message.x) > 40 || Math.abs(message.z) > 40 || message.y < -12 || message.y > 20) throw new RoomError('invalid_position');
@@ -81,6 +100,7 @@ class Rooms {
       if (message.epoch !== p.epoch) return;
       p.x = message.x; p.y = message.y; p.z = message.z;
     } else if (message.type === 'shot') {
+      if(room.phase!=='running')return;
       const b = message.b;
       if (!b || !['vx','vy','vz'].every(k => Number.isFinite(b[k])) ||
           Math.abs(Math.hypot(b.vx,b.vy-3,b.vz)-13) > .1) throw new RoomError('invalid_shot');
@@ -112,6 +132,13 @@ class Rooms {
         if (!p.socket && this.now()-p.disconnectedAt > GRACE_MS) room.players.delete(id);
       }
       if (!room.players.size) { this.rooms.delete(room.code); continue; }
+      if(room.phase==='running'&&room.clock.expired(this.now())){
+        room.phase='finished';room.shots=[];
+        this.broadcast(room,{type:'match_end',match:this.matchStatus(room),
+          players:[...room.players.values()].map(p=>this.publicPlayer(p)),serverTime:this.now()});
+        this.broadcast(room,this.snapshot(room));
+      }
+      if(room.phase!=='running')continue;
       for (const b of room.shots) {
         const actors=[...room.players.values()].filter(p=>p.socket).map(p=>({
           id:p.id,x:p.x,y:p.y,z:p.z,shielded:this.now()<p.shieldUntil
