@@ -11,12 +11,24 @@ The Render room server is authoritative for scores, shots, match timing and acce
 - Falling players who have already reached low altitude can respawn. The server chooses their assigned four-player spawn rather than accepting the local client's hardcoded west-platform spawn.
 - Server shots still decide hits, score and respawn immunity. Client-reported scores and source identities are not trusted.
 
-## Explicit unresolved limitation: the flying bird
+## Server-owned pterodactyl capture
 
-The current pterodactyl animation and capture remain local rather than server simulated. To avoid breaking capture during this intermediate migration, the server permits **temporary elevated displacement** after ten shots it has independently accepted, for 22 seconds. Outside that documented ten-shot trigger window, ordinary grounded movement checks apply. This is a *compatibility allowance*, **not fully authoritative bird physics**, and it must not be marketed as cheat-proof competitive multiplayer. The flight model should ultimately become server-owned.
+The room server now selects attack targets after ten accepted shots, runs the
+bird's timed approach, moves players throughout seizure and carry, and releases
+them from its authoritative position. Client state packets cannot change the
+position of a carried player. The former permissive 22-second elevated movement
+exception has been removed; arbitrary aerial displacement is rejected.
 
-The user's optional bird-threshold control may not perfectly match the server's default ten-shot allowance. Exact original collision parameters, character acceleration and bird interactions remain reconstruction assumptions. Legacy PeerJS rooms do not use the Render authority.
+The visual orbit is computed on both sides from the same room start timestamp,
+while server snapshots/events own phase, target, position and epoch. Rejoining
+a room during a capture restores the current shared phase and authoritative
+player coordinates. See `docs/SERVER_BIRD.md`.
+
+**Historical caveat:** capture radius, orbit, timings, damage, and per-player
+shot counting remain reconstructed, not verified original mechanics. The phone's
+optional local bird threshold does not change the server's default ten. Legacy
+PeerJS rooms still do not use the authoritative Render server.
 
 ## Verification
 
-Automated unit tests cover wall crossing, column blocking, speed limits, stair heights, falling, flight allowances and authoritative correction. Four browser contexts use real movement and test that other players see the server-accepted position, then reconnect and continue after their room creator leaves. Real-device, slow-network and four-person testing are still needed.
+Automated unit tests cover wall crossing, column blocking, speed limits, stair heights, falling, unauthorized aerial movement and authoritative correction. Four browser contexts use real movement and test that other players see the server-accepted position, then reconnect and continue after their room creator leaves. Real-device, slow-network and four-person testing are still needed.
