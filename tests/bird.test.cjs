@@ -66,5 +66,20 @@ test('pure pose is stable across clients, independent of individual frame rates'
  assert.deepEqual(a,b);
  assert.ok(Math.abs(Math.hypot(a.x,a.z)-10)<1e-9);
  assert.ok(a.y>6&&a.y<10);
- assert.deepEqual(Bird.publicState(Bird.create(123)),{startedAt:123,phase:'patrol',target:null,until:null,sequence:0});
+ assert.deepEqual(Bird.publicState(Bird.create(123)),{startedAt:123,phase:'patrol',target:null,until:null,hiddenUntil:0,sequence:0});
+});
+
+test('a good hit repels only an approaching bird, leaves scores alone and pauses visibility',()=>{
+ const b=Bird.create(0),playerA=player('a');
+ for(let i=0;i<10;i++)Bird.recordShot(playerA);
+ Bird.advance(b,[playerA],9000);
+ assert.equal(b.phase,'approach');
+ const event=Bird.repel(b,10000,'shooter');
+ assert.deepEqual({kind:event.kind,target:event.target,source:event.source},
+  {kind:'repelled',target:'a',source:'shooter'});
+ assert.equal(b.phase,'patrol');assert.equal(b.target,null);
+ assert.equal(b.hiddenUntil,12500);assert.equal(b.cooldownUntil,23000);
+ assert.equal(playerA.epoch,0);
+ assert.equal(Bird.repel(b,10010,'shooter'),null);
+ assert.deepEqual(Bird.advance(b,[playerA],12500),[]);
 });
