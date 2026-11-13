@@ -46,3 +46,11 @@ Likewise, claims about original 1991 magneto-optical distribution, original prog
 - Are there known differences between the 1000CS and SU2000 editions?
 
 Research findings here are leads for follow-up, not permission to merge later-game assets into the 1991 reconstruction.
+
+## Follow-up, 2026-11-13: machine-media provenance and outreach
+
+The archived SkullSpace page explicitly describes its SU2000 as a DOS 6.22 system with a 486 host, a 500 MB hard drive on their unit, two compact-disc drives and a floppy drive. It states that the group backed up the hard drive and **three games**: Dactyl Nightmare, Zone Hunter and Missile Command. It does **not** establish that a public download exists, which game revision was backed up, or whether the full set of required game firmware was captured. The page warns that some programmable integrated circuits were not backed up. Source: https://wiki.skullspace.ca/index.php/Virtuality_SU2000 .
+
+An attempt to open a preservation inquiry on the MallVR GitHub repository via the connected GitHub integration returned **403 Resource not accessible by integration**. No inquiry was posted. Do not describe this as completed outreach. The draft question is retained in local project issue #35. Contacting SkullSpace was not attempted through an authenticated channel; do not claim otherwise.
+
+No precise Internet Archive item identifier, manifest, original asset checksum or verified Dactyl extraction utility has been recovered in this pass. The available evidence does not justify replacing 1000CS geometry with SU2000 geometry.
