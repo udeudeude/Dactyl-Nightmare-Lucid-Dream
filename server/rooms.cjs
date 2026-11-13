@@ -104,6 +104,17 @@ class Rooms {
       // A delayed pre-hit packet must not undo a server-issued respawn.
       if (message.epoch !== p.epoch) return;
       if(room.phase!=='running')return;
+      // Solo and phone clients currently respawn locally at the west spawn
+      // after falling. Verify that the server had already observed a real fall,
+      // then apply this player's *own* authoritative room spawn instead.
+      const localSpawn=SPAWNS[0];
+      if(p.y< -4&&Math.abs(message.x-localSpawn.x)<.02&&
+         Math.abs(message.z-localSpawn.z)<.02&&Math.abs(message.y-localSpawn.y)<.02){
+        Object.assign(p,SPAWNS[p.slot]);p.epoch++;p.shieldUntil=this.now()+4000;
+        p.moveAt=this.now();p.moveCredit=Motion.START_CREDIT;
+        this.send(socket,{type:'correction',reason:'respawn',self:this.publicPlayer(p)});
+        this.broadcast(room,this.snapshot(room));return;
+      }
       const now=this.now(),elapsed=Math.max(0,now-p.moveAt);
       p.moveAt=now;
       p.moveCredit=Motion.replenish(p.moveCredit,elapsed);
