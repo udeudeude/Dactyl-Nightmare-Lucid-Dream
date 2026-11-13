@@ -39,21 +39,21 @@ test('positions must be finite and bounded; untrusted scores and sources are ign
 });
 test('server enforces shot identity, muzzle, rate, velocity and one score per projectile',()=>{
   const f=fixture(),victim=f.join(),overlapping=f.join();f.setTime(5000);
-  for(const s of [victim,overlapping])f.rooms.receive(s,{type:'state',x:0,y:0,z:2,epoch:0});
-  f.rooms.receive(f.host,{type:'state',x:0,y:0,z:0,epoch:0});
+  for(const s of [victim,overlapping])f.rooms.receive(s,{type:'state',x:-13,y:2,z:5,epoch:0});
+  f.rooms.receive(f.host,{type:'state',x:-13,y:2,z:3,epoch:0});
   assert.throws(()=>f.rooms.receive(f.host,{type:'shot',b:{vx:100,vy:3,vz:13},epoch:0}),/invalid_shot/);
   const msg={type:'shot',epoch:0,b:{x:99,y:99,z:99,vx:0,vy:3,vz:13,owner:victim.player.id,ttl:999}};
   f.rooms.receive(f.host,msg);f.rooms.receive(f.host,msg);
   assert.equal(f.host.room.shots.length,1);
   assert.equal(f.host.room.shots[0].owner,f.host.player.id);
-  assert.equal(f.host.room.shots[0].x,0);
+  assert.equal(f.host.room.shots[0].x,-13);
   for(let i=0;i<15;i++)f.rooms.advance(.02);
   assert.equal(f.host.player.score,1);
   assert.equal(victim.player.epoch,1);assert.equal(overlapping.player.epoch,0);
   assert.equal(f.host.room.shots.length,0);
   // A delayed state packet cannot cancel the authoritative respawn.
   const spawn={x:victim.player.x,y:victim.player.y,z:victim.player.z};
-  f.rooms.receive(victim,{type:'state',x:0,y:0,z:2,epoch:0});
+  f.rooms.receive(victim,{type:'state',x:-13,y:2,z:5,epoch:0});
   assert.deepEqual({x:victim.player.x,y:victim.player.y,z:victim.player.z},spawn);
 });
 test('unjoined clients and unsupported protocol cannot send game state',()=>{
@@ -61,4 +61,18 @@ test('unjoined clients and unsupported protocol cannot send game state',()=>{
   assert.throws(()=>f.rooms.receive(socket(),null),/invalid_message/);
   assert.throws(()=>f.rooms.receive(socket(),{type:'state'}),/join_first/);
   assert.throws(()=>f.rooms.receive(socket(),{type:'hello',v:2,action:'create'}),/protocol_version/);
+});
+
+test('a wall shields opponents and server broadcasts shot removal',()=>{
+  const f=fixture(),victim=f.join(),shooter=f.host;
+  f.setTime(5000);
+  // West board column is centered at x=-15.15,z=2.15.
+  f.rooms.receive(shooter,{type:'state',x:-16.5,y:2,z:2.15,epoch:0});
+  f.rooms.receive(victim,{type:'state',x:-13.8,y:2,z:2.15,epoch:0});
+  f.rooms.receive(shooter,{type:'shot',epoch:0,b:{vx:13,vy:3,vz:0}});
+  for(let i=0;i<30;i++)f.rooms.advance(.02);
+  assert.equal(shooter.player.score,0);
+  assert.equal(victim.player.epoch,0);
+  assert.ok(victim.messages.some(m=>m.type==='shot_end'&&m.reason==='scenery'&&m.part==='column'));
+  assert.equal(shooter.room.shots.length,0);
 });
