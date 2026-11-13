@@ -14,13 +14,15 @@ test('four browser players share server combat, reconnect and survive creator de
       await expect(page.locator('#status')).toContainText('Connected.');
     }
     for(const page of pages)await expect.poll(()=>page.evaluate(()=>Object.keys(others).length)).toBe(3);
-    await pages[0].evaluate(()=>{Object.assign(me,{x:0,y:0,z:0});yaw=0;pitch=0;send({type:'state',...me});});
-    await pages[1].evaluate(()=>{Object.assign(me,{x:0,y:0,z:2});send({type:'state',...me});});
-    // Initial respawn immunity is a real four-second server timer.
+    await pages[0].locator('#solo').click();
+    for(const page of pages)await expect.poll(()=>page.evaluate(()=>dactylRelay.match.phase)).toBe('running');
+    await pages[0].evaluate(()=>{Object.assign(me,{x:-13,y:2,z:3});yaw=0;pitch=0;send({type:'state',...me});});
+    await pages[1].evaluate(()=>{Object.assign(me,{x:-13,y:2,z:5});send({type:'state',...me});});
+    // Initial respawn immunity resets on authoritative match start.
     await pages[0].waitForTimeout(4100);
-    await pages[0].locator('#solo').click();await pages[0].locator('#fire').click();
+    await pages[0].locator('#fire').click();
     await expect.poll(()=>pages[0].evaluate(()=>score)).toBe(1);
-    await expect.poll(()=>pages[1].evaluate(()=>me.x)).toBe(13);
+    await expect.poll(()=>pages[1].evaluate(()=>dactylRelay.epoch)).toBe(2);
     for(const page of pages)await expect(page.locator('#roomScores')).toContainText(/P1.*: 1/);
     const id=await pages[1].evaluate(()=>dactylRelay.id);
     await pages[1].evaluate(()=>dactylRelay.socket.close());
