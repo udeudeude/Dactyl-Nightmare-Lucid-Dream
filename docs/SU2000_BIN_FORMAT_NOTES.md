@@ -63,3 +63,14 @@ python3 scripts/analyze_su2000_disc.py dactylsp.mdf dactylsp_manifest.tsv --outp
 ```
 
 Do not commit the original disc image, extracted proprietary meshes, or audio.
+
+## Candidate coordinate decoding (2026-11-13)
+
+A second read-only probe now treats bytes 80 onward in compatible `BIN 0200` models as consecutive **big-endian IEEE 754 32-bit XYZ triples**. Byte 76 is interpreted provisionally as the triple count. This interpretation passed strict length, finite-number, and offset-order checks for **254 of 275** `BIN 0200` files. The other 21 were deliberately rejected rather than forced through the same layout. These checks establish **plausible candidate coordinates, not proven polygon connectivity or world-space units**.
+
+| SU2000 file | Candidate triples | X min/max | Y min/max | Z min/max |
+| --- | ---: | --- | --- | --- |
+| `DAC/MODELS/DACTYL/DACBOD.BIN` | 42 | -439.55 / 436.03 | -792.62 / 2113.77 | -310.98 / 283.54 |
+| `DAC/MODELS/NEWDACTY/DACBOD.BIN` | 49 | -180.42 / 188.25 | -170.78 / 1492.65 | -209.20 / 205.35 |
+
+The two body files are distinct; neither is authenticated as the 1991 1000CS body. See [the committed probe](../scripts/probe_su2000_geometry.py), which prints only candidate counts, block offsets, and numerical bounds. The remaining work is to prove polygon-index structure, coordinate transforms and scaling, then compare against release-labeled 1000CS reference frames. **Do not yet replace game geometry with these candidates.**
