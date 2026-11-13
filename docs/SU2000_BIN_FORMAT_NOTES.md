@@ -103,3 +103,13 @@ A separate full-disc read-only scan of the 279 `.BIN` entries identifies **three
 The **13 short-header files** are `360`, `3DSOUND`, `BLA3`, `CPU`, `DACTYL`, `FUTURE`, `NMARE`, `STARF`, `STEALTH`, `STING`, `TUBESECT`, `VEGA`, and `VIRTUAL`, all in `DAC/MODELS/OBJECTS/`. The four `BIN 0300` files are `CLAM`, `PLATC`, `PLATN`, and `STAIRN` in `DAC/MODELS/PEARL/`.
 
 **Correction:** The earlier total of 38 common-layout failures is not one homogeneous exception class. Thirteen have the shorter outer header; **25 still have the common 36-byte header** but fail the strict vertex/polygon checks. This does not establish their internal schemas. See [classifier](../scripts/classify_su2000_models.py). Polygon attributes remain undecoded.
+
+## Short-header polygon decoding: directly validated (2026-11-13)
+
+A second parser now recognizes the `BIN 0200` short-header family. The outer relative-offset directory starts at **absolute byte 16** rather than the common layout's nested record starting at byte 52. The five 32-bit big-endian offsets at absolute bytes **20, 24, 28, 32, 36** are relative to byte 16. The first section contains a big-endian vertex count followed by 12-byte big-endian float triples; the third contains a polygon count followed by variable-length indexed polygon records in the same structure as the common layout.
+
+**Actual read-only results on the uploaded disc:** **12 of 13** short-header models passed exact vertex-section length, polygon record boundaries and index-range validation. These contain **3,082 vertices and 1,509 polygons** (344 triangles and 1,165 quads). The one rejected model is `DAC/MODELS/OBJECTS/STARF.BIN`, which requires further analysis. See [short-header validator](../scripts/validate_su2000_short_models.py).
+
+Examples: `OBJECTS/DACTYL.BIN` has 186 vertices and 103 indexed polygons; `OBJECTS/360.BIN` has 348 vertices and 175 indexed polygons. These filenames identify objects in the later SU2000 edition, not necessarily the 1991 playable bird.
+
+**Updated verified minimum:** 237 common-layout models + 12 short-header models = **249 indexed-polygon models**, with **14,917 candidate vertices** and **18,453 polygons**. These are structural counts, not a proof of correct scale, materials, transforms, or 1991 identity. The four `BIN 0300` files appear to contain nested model-like structures, but no fully validated parser is claimed yet.
