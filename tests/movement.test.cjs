@@ -25,11 +25,9 @@ test('stairs, floor heights and falling are checked against the shared map',()=>
  assert.equal(req(actor(5.9,5.5),actor(6.3,5.5,-.2),1.2).ok,true);
  assert.equal(req(actor(6.3,5.5,-.2),actor(6.4,5.5,4),1.2).reason,'height');
 });
-test('exceptional aerial motion requires an active server-confirmed bird window',()=>{
+test('untrusted clients can never grant themselves bird flight',()=>{
  const start=actor(-13,3,2),lifted=actor(1,0,8);
  assert.equal(req(start,lifted,1.2).ok,false);
- const allowed=req(start,lifted,1.2,{birdGraceUntil:5000});
- assert.equal(allowed.ok,true);
- assert.equal(allowed.flight,true);
- assert.equal(req(start,lifted,1.2,{birdGraceUntil:1000}).ok,false);
+ assert.equal(req(start,lifted,1.2,{birdGraceUntil:5000}).ok,false);
+ assert.equal(req(actor(-13,3,2),actor(-13,3,8),1.2).reason,'height');
 });
