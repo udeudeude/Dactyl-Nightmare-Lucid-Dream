@@ -134,6 +134,40 @@
         "distinguish operator/demos and TV overlays",
         "seek original program assets if lawful"
       ]
+    },
+    {
+      "id": "PLAY_CGW_DEC_1991",
+      "source": "https://manuals.plus/m/d2a3398c133ee5dabca1345eccb95f2c52511421175a705f05439cde04409888",
+      "dateOfExperience": "1991-12-11",
+      "publication": "Computer Gaming World 91, February 1992",
+      "context": "Russell Sipe's firsthand four-player session at DV8, San Francisco",
+      "observed": {
+        "players": 4,
+        "avatarSquattingTracksPlayer": true,
+        "sessionMinutesApproximately": 3.5,
+        "paidSessionUsd": 4
+      },
+      "confidence": "contemporaneous primary witness; precise timed game duration not isolated from preparation",
+      "needs": [
+        "separate paid duration from configured internal game clock",
+        "no original startup/ending pixels described"
+      ]
+    },
+    {
+      "id": "CAMERA_MANUAL_1993",
+      "source": "https://vrtifacts.com/wp-content/uploads/filebase/Virtuality-1000CS-Service-Manual.pdf",
+      "publication": "1993-09/10",
+      "page": "printed 1.14 (PDF page 20)",
+      "context": "manufacturer command-line options",
+      "observed": {
+        "cameraExalityModeOption": "c",
+        "requiresExtraHardware": true
+      },
+      "confidence": "direct manufacturer manual; not evidence any recorded game used option",
+      "needs": [
+        "classify aerial television frames vs player headset",
+        "record extra camera equipment where documented"
+      ]
     }
   ]
 }
