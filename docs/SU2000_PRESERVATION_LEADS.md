@@ -5,9 +5,9 @@ This is an evidence-graded research register, **not** an assertion that 1994 ass
 ## Highest-priority lead: MallVR
 
 - Project: https://github.com/gainesphere-studios/MallVR
-- Its public project description claims high-level emulation of original SU2000 software in DOSBox-X, including Dactyl Nightmare (Citizen build), with online play. This is a *developer claim*, not yet independently reproduced here.
+- Its public project description claims high-level emulation of original SU2000 software in DOSBox-X, including Dactyl Nightmare, with online play. This is a *developer claim*, not yet independently reproduced here. **Critical distinction (checked against the developer's current download page): MallVR's 1000-series Dactyl Nightmare is explicitly a footage-based playable placeholder, not emulation of recovered 1991 code.** Its playable original-software Dactyl refers to the later 2000-series release. The developer says a 1000-series hard-drive dump is still missing. See https://gainesphere.com/pages/mallvr-download .
 - Investigate: exact Dactyl release/revision, provenance of game software, whether original geometry/audio can be inspected, whether gameplay can be captured reproducibly, and whether nonredistributable assets can be analyzed locally.
-- Ask the maintainers for a technical interview or permission to compare screenshots, game timings, collision layout, bird movement, HUD, weapon and avatars. Do not imply their game files are open source.
+- Ask the maintainers for a technical interview or permission to compare screenshots, game timings, collision layout, bird movement, HUD, weapon and avatars. Ask separately for evidence about the 1000CS; do not treat the footage-derived placeholder as primary evidence. Do not imply their game files are open source.
 
 ## Physical-machine preservation: SkullSpace
 
