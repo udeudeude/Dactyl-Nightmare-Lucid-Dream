@@ -18,6 +18,7 @@ const PUBLIC_FILES = new Map([
   ['/js/rules.js',['js/rules.js','text/javascript']],
   ['/js/bird.js',['js/bird.js','text/javascript']],
   ['/js/orientation.js',['js/orientation.js','text/javascript']],
+  ['/js/arrival.js',['js/arrival.js','text/javascript']],
   ['/js/head-tracking.js',['js/head-tracking.js','text/javascript']],
   ['/js/relay-client.js',['js/relay-client.js','text/javascript']],
   ['/js/multiplayer-relay.js',['js/multiplayer-relay.js','text/javascript']]

@@ -29,6 +29,8 @@ Prefer A over B, B over C, and so on. Record contradictions instead of averaging
 - **Battlesphere, Exorex, VTOL, Flying Aces and Total Destruction** belong to the **1000SD sit-down** branch. They share corporate/technology roots but different hardware and control metaphors; lower confidence proxies for stand-up shooter user interface.
 - The later **2000-series** may preserve some Virtuality artistic practices but changed compute/graphics architecture. **Do not backport 2000-series assets, models or HUDs as the 1991 original.**
 
+**Important creator-credit boundary:** Interviews with Virtuality-era developers Matt Wilkinson and Don McIntyre, including the [2010s retrospective published by Time Extension](https://www.timeextension.com/features/virtuality-gave-us-90s-vr-now-its-legacy-is-being-celebrated-in-its-home-city-of-leicester), recount Wilkinson first trying **an already functioning Dactyl Nightmare** before Jon Waldern offered him a position. Their subsequent Virtuality work can illuminate the studio's methods, but **does not make either person the original 1991 programmer**. Waldern's contemporary 1991 paper is firmer evidence for the common technical architecture than retrospective attribution of individual gameplay code.
+
 **Individual developer credits:** Dr Waldern is documented as founder/system designer and author of the 1991 technical paper. This does **not** establish that he personally programmed Dactyl, nor identify its original level artist, gameplay programmer or interface designer. Those names remain **unknown** pending actual credits, staff recollections or program assets.
 
 ## Feature-by-feature decisions
