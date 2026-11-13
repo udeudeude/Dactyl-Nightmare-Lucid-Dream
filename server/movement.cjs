@@ -15,6 +15,9 @@ function assess(player,next,{credit,now,elapsedMs=0,birdGraceUntil=0}={}){
   // Only grant its exceptional displacement after ten server-accepted shots.
   if(inBirdFlight)return {ok:true,position:{x:next.x,y:next.y,z:next.z},cost:0,flight:true};
   if(distance>credit+1e-7)return {ok:false,reason:'speed'};
+  // Endpoint tolerances must never let a grounded player enter a solid.
+  if(G.obstacleAt(next.x,next.z,PLATFORMS)&&!G.obstacleAt(player.x,player.z,PLATFORMS))
+    return {ok:false,reason:'blocked'};
   if(toGround!==null){
     if(!nearly(next.y,toGround,.15)){
       if(fromGround!==null&&player.y>fromGround+.35&&next.y<=player.y+.15&&next.y>=toGround)
