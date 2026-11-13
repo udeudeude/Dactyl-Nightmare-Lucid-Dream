@@ -24,7 +24,7 @@ This is an evidence-graded research register, **not** an assertion that 1994 ass
 
 ## Unverified claims from external lead
 
-A proposed Internet Archive Alcohol 120% MDF/MDS image of *Dactyl Nightmare SP*, allegedly containing DACC.EXE, SP.EXE, ETS.EXE, geometry and audio but lacking DAC.EXE, was described without an exact item URL or manifest. Searches performed 2026-11-13 did not establish the item or file inventory. **Do not claim these files or extraction scripts exist until an exact archive item and hashes are recorded.**
+**Archive item now identified (2026-11-13):** https://archive.org/details/DactylNightmareSP . The uploader's description names DACC.EXE, SP.EXE and ETS.EXE, and says the game executable DAC.EXE was shipped separately on floppy. These are uploader assertions, **not independently verified contents of the image**. The archive's public directory listing confirms `dactylsp.mdf` (234.2 MB) and `dactylsp.mds` (1.2 KB): https://archive.org/download/DactylNightmareSP . No hashes, filesystem inventory, mesh or audio extraction have yet been verified.
 
 Likewise, claims about original 1991 magneto-optical distribution, original programmer attribution, and 1994-to-1991 mesh identity require independent primary evidence.
 
@@ -53,4 +53,4 @@ The archived SkullSpace page explicitly describes its SU2000 as a DOS 6.22 syste
 
 An attempt to open a preservation inquiry on the MallVR GitHub repository via the connected GitHub integration returned **403 Resource not accessible by integration**. No inquiry was posted. Do not describe this as completed outreach. The draft question is retained in local project issue #35. Contacting SkullSpace was not attempted through an authenticated channel; do not claim otherwise.
 
-No precise Internet Archive item identifier, manifest, original asset checksum or verified Dactyl extraction utility has been recovered in this pass. The available evidence does not justify replacing 1000CS geometry with SU2000 geometry.
+The exact Internet Archive identifier has now been recovered: `DactylNightmareSP`. No original asset checksum, image-internal manifest or verified Dactyl extraction utility has been recovered. The analysis container could not resolve archive.org, so the disc image has **not** been downloaded or inspected internally. The available evidence does not justify replacing 1000CS geometry with SU2000 geometry.
