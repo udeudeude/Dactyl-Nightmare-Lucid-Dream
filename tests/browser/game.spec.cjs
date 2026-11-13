@@ -64,3 +64,26 @@ test('bird attacks follow actual shots instead of elapsed time', async ({ page }
   expect(state.idle).toBe(0);expect(state.nine).toBe(0);expect(state.ten).toBeGreaterThan(0);
   expect(state.shots).toBe(10);
 });
+
+test('live game movement respects visible columns rather than passing through them',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');
+ await page.locator('#solo').click();
+ const result=await page.evaluate(()=>{
+   // Approach the central southwest pillar, travelling toward its base.
+   playing=false;me.x=-3.4;me.y=0;me.z=-2.58;
+   yaw=Math.PI/2;pitch=0;tracking=false;cameraBasis=null;
+   mx=0;mz=1;remoteInput={x:0,z:0,fire:false};keys={};
+   last=performance.now()-40;playing=true;tick(last+40);playing=false;mx=mz=0;
+   const blocked={x:me.x,z:me.z,type:DactylGeometry.obstacleAt(me.x,me.z,platforms)};
+   // Turning along the obstacle permits tangential motion.
+   yaw=0;mz=1;last=performance.now()-40;playing=true;tick(last+40);playing=false;mx=mz=0;
+   return {blocked,after:{x:me.x,z:me.z,type:DactylGeometry.obstacleAt(me.x,me.z,platforms)}};
+ });
+ expect(result.blocked.x).toBeGreaterThan(-3.4);
+ expect(result.blocked.x).toBeLessThan(-3.2);
+ expect(result.blocked.type).toBe(null);
+ expect(result.after.z).toBeGreaterThan(result.blocked.z);
+ expect(result.after.type).toBe(null);
+ expect(errors).toEqual([]);
+});
