@@ -43,5 +43,21 @@ class SU2000Tests(unittest.TestCase):
         struct.pack_into(">I", blob, 104, 3)
         self.assertEqual(verify.inspect(blob), "out_of_range_index")
 
+    def test_material_parser_accepts_synthetic_triangle(self):
+        survey = load("survey_su2000_materials")
+        blob = bytearray(140)
+        blob[:8] = b"BIN 0200"
+        struct.pack_into(">I", blob, 12, len(blob) - 16)
+        for at, value in zip((20, 24, 28, 32, 36), (24, 64, 64, 92, 92)):
+            struct.pack_into(">I", blob, at, value)
+        struct.pack_into(">I", blob, 40, 3)
+        struct.pack_into(">I", blob, 80, 1)
+        struct.pack_into(">III", blob, 84, 3, 0x20c80000, 0)
+        struct.pack_into(">III", blob, 96, 0, 1, 2)
+        parsed, error = survey.parse(blob)
+        self.assertIsNone(error)
+        self.assertEqual(parsed[0][0x20c80000], 1)
+        self.assertEqual(parsed[2], 1)
+
 if __name__ == "__main__":
     unittest.main()
