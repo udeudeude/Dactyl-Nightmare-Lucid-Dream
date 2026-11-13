@@ -149,14 +149,17 @@
     const move=(sx,sz)=>{
       if(sx===0&&sz===0)return true;
       const x=result.x+sx,z=result.z+sz;
-      if(obstacleAt(x,z,platforms,radius))return false;
+      // Normally entering a solid is forbidden. A bird drop can place a
+      // player *inside* one: allow movement until they escape, then block
+      // re-entry. Otherwise a displaced player is permanently trapped.
+      if(obstacleAt(x,z,platforms,radius)&&!obstacleAt(result.x,result.z,platforms,radius))return false;
       const level=groundAt(x,z,platforms,steps);
       if(level!==null){
         if(level-result.y>=maxRise)return false;
         result.x=x;result.z=z;result.y=level;return true;
       }
       const spillX=result.x+sx*voidSpeed,spillZ=result.z+sz*voidSpeed;
-      if(obstacleAt(spillX,spillZ,platforms,radius))return false;
+      if(obstacleAt(spillX,spillZ,platforms,radius)&&!obstacleAt(result.x,result.z,platforms,radius))return false;
       result.x=spillX;result.z=spillZ;return true;
     };
     for(let i=0;i<segments;i++){
