@@ -63,3 +63,21 @@ test('a half-open socket cannot hold reconnect hostage while close waits for the
   // An eventual callback from the abandoned socket cannot start another retry.
   sockets[0].onclose({code:1006});t.mock.timers.tick(1000);assert.equal(sockets.length,2);
 });
+
+test('Render-hosted game serves every locally referenced game script',async t=>{
+ const service=await fixture(t);
+ const origin='http://127.0.0.1:'+service.server.address().port;
+ const page=await fetch(origin+'/');
+ assert.equal(page.status,200);
+ const html=await page.text();
+ const scripts=[...html.matchAll(/<script\s+src="\.\/(js\/[^"]+)"/g)].map(m=>m[1]);
+ assert.ok(scripts.includes('js/depth-renderer.js'));
+ assert.ok(scripts.includes('js/projectiles.js'));
+ assert.ok(scripts.includes('js/earbud-fire-queue.js'));
+ for(const path of scripts){
+   const response=await fetch(origin+'/'+path);
+   assert.equal(response.status,200,path+' was not served');
+   assert.match(response.headers.get('content-type'),/javascript/,path);
+   assert.ok((await response.text()).length>20,path);
+ }
+});
