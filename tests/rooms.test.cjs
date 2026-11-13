@@ -202,3 +202,27 @@ test('reconnecting during carry receives current authoritative bird state and ep
  assert.ok(resumed.messages.some(m=>m.type==='bird_event'&&m.event.kind==='drop'));
  assert.equal(p.epoch,3);
 });
+
+test('the authoritative room bird can be shot once during its approach',()=>{
+ const f=fixture(),defender=f.host,friend=f.join(),room=f.host.room;
+ f.rooms.receive(defender,{type:'start'});
+ Object.assign(room.bird,{phase:'approach',target:defender.player.id,
+   until:5000,hiddenUntil:0});
+ // Controlled server projectile fixture, positioned in front of the
+ // actual bird mesh at its deterministic (10,8,0) time-zero pose.
+ room.shots.push({id:'bird-test-shot',owner:friend.player.id,x:10,y:8,z:6,
+   vx:0,vy:0,vz:-30,ttl:3});
+ const initialScore=friend.player.score;
+ f.rooms.advance(.2);
+ assert.equal(room.shots.length,0);
+ assert.equal(room.bird.phase,'patrol');
+ assert.equal(room.bird.hiddenUntil,2500);
+ assert.equal(friend.player.score,initialScore,'bird shooting does not invent points');
+ const events=friend.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='repelled');
+ assert.equal(events.length,1);
+ assert.equal(events[0].event.source,friend.player.id);
+ assert.equal(events[0].event.target,defender.player.id);
+ assert.ok(defender.messages.some(m=>m.type==='shot_end'&&m.reason==='bird'));
+ f.rooms.advance(.02);
+ assert.equal(friend.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='repelled').length,1);
+});
