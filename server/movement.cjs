@@ -8,7 +8,7 @@ function assess(player,next,{credit,now,elapsedMs=0,birdGraceUntil=0}={}){
   const dx=next.x-player.x,dz=next.z-player.z,distance=Math.hypot(dx,dz);
   const fromGround=G.groundAt(player.x,player.z,PLATFORMS,STEPS);
   const toGround=G.groundAt(next.x,next.z,PLATFORMS,STEPS);
-  const inBirdFlight=birdGraceUntil>=now &&
+  const inBirdFlight=birdGraceUntil>now &&
     ((fromGround!==null&&player.y>fromGround+.35)||
      (toGround!==null&&next.y>toGround+.35));
   // Bird capture remains local to the original client implementation.
