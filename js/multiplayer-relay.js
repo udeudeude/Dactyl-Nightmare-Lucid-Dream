@@ -54,6 +54,8 @@
       }else if(data.type==='shot'){
         // The local predicted shot is already visible and audible.
         if(data.b.owner!==id)shots.push({...data.b});else{recordDactylShot();const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
+      }else if(data.type==='shot_end'){
+        shots=shots.filter(shot=>shot.id!==data.shot);
       }else if(data.type==='hit'){
         shots=shots.filter(b=>b.id!==data.shot);
         if(data.source===id)sound('hit');
