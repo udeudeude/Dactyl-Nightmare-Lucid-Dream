@@ -143,3 +143,62 @@ test('server respawns fallen players at their own slot and increments epoch',()=
  assert.deepEqual({x:other.player.x,y:other.player.y,z:other.player.z},{x:13,y:2,z:3});
  assert.equal(other.messages.at(-2).reason,'respawn');
 });
+
+test('ten server-confirmed shots cause one shared bird capture and authoritative drop',()=>{
+ const f=fixture(),p=f.host.player,room=f.host.room;
+ f.rooms.receive(f.host,{type:'start'});
+ for(let i=0;i<10;i++){
+   f.setTime(i*1800);
+   f.rooms.receive(f.host,{type:'shot',epoch:1,b:{vx:0,vy:3,vz:13}});
+   f.rooms.advance(.02);
+ }
+ assert.equal(room.bird.phase,'approach');
+ assert.equal(room.bird.target,p.id);
+ assert.equal(p.birdShots,0);
+ assert.equal(p.pendingBird,false);
+ assert.equal(f.host.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='approach').length,1);
+ f.setTime(19000);f.rooms.advance(.02);
+ assert.equal(room.bird.phase,'carry');
+ assert.equal(p.epoch,2);
+ const seized={x:p.x,y:p.y,z:p.z};
+ assert.equal(f.host.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='seize').length,1);
+ f.rooms.receive(f.host,{type:'state',epoch:2,x:0,y:8,z:0});
+ assert.deepEqual({x:p.x,y:p.y,z:p.z},seized,'client cannot steer captured player');
+ f.rooms.receive(f.host,{type:'shot',epoch:2,b:{vx:0,vy:3,vz:13}});
+ assert.equal(p.lastShot,16200,'a carried player cannot fire');
+ f.setTime(19800);f.rooms.advance(.02);
+ assert.notEqual(p.x,seized.x,'server animates carry position');
+ f.setTime(21200);f.rooms.advance(.02);
+ assert.equal(room.bird.phase,'patrol');
+ assert.equal(p.epoch,3);
+ assert.equal(p.y,5);
+ assert.equal(f.host.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='drop').length,1);
+ const last=room.bird.sequence;
+ f.rooms.advance(.02);assert.equal(room.bird.sequence,last,'drop cannot repeat');
+ f.setTime(180000);f.rooms.advance(.02);
+ assert.equal(room.phase,'finished');
+ assert.equal(f.host.messages.filter(m=>m.type==='match_end').length,1);
+});
+test('reconnecting during carry receives current authoritative bird state and epoch',()=>{
+ const f=fixture(),p=f.host.player,room=f.host.room,token=p.token,code=room.code;
+ f.rooms.receive(f.host,{type:'start'});
+ for(let i=0;i<10;i++){
+   f.setTime(i*1800);
+   f.rooms.receive(f.host,{type:'shot',epoch:1,b:{vx:0,vy:3,vz:13}});
+ }
+ f.rooms.advance(.02);
+ f.setTime(19000);f.rooms.advance(.02);
+ assert.equal(room.bird.phase,'carry');
+ f.rooms.disconnect(f.host);
+ f.setTime(19700);f.rooms.advance(.02);
+ const resumed=socket();
+ f.rooms.receive(resumed,{type:'hello',v:1,action:'resume',room:code,token});
+ const welcome=resumed.messages.find(m=>m.type==='welcome');
+ assert.equal(welcome.bird.phase,'carry');
+ assert.equal(welcome.bird.target,p.id);
+ assert.equal(welcome.self.epoch,2);
+ assert.equal(welcome.self.x,p.x);
+ f.setTime(21200);f.rooms.advance(.02);
+ assert.ok(resumed.messages.some(m=>m.type==='bird_event'&&m.event.kind==='drop'));
+ assert.equal(p.epoch,3);
+});
