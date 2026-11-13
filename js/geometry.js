@@ -6,6 +6,12 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   const EPSILON = 1e-8;
+  const PLATFORMS = Object.freeze([
+    {x:0,z:0,w:12,y:0},{x:-13,z:0,w:10,y:2},
+    {x:13,z:0,w:10,y:2},{x:0,z:-13,w:10,y:2},
+    {x:0,z:13,w:10,y:2}
+  ].map(p=>Object.freeze(p)));
+
   // Exact footprint constants shared with the polygon scene, rather than
   // maintaining two unrelated sets of obstacle coordinates.
   const ARCHITECTURE = Object.freeze({
@@ -171,5 +177,5 @@
     return {...result,dx:result.x-position.x,dz:result.z-position.z};
   }
   return { stairs, groundAt, clipNear, movementInput, patrol,
-    ARCHITECTURE, ringBlocks, obstacleAt, moveOnGround };
+    PLATFORMS, ARCHITECTURE, ringBlocks, obstacleAt, moveOnGround };
 });
