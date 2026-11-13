@@ -74,3 +74,18 @@ A second read-only probe now treats bytes 80 onward in compatible `BIN 0200` mod
 | `DAC/MODELS/NEWDACTY/DACBOD.BIN` | 49 | -180.42 / 188.25 | -170.78 / 1492.65 | -209.20 / 205.35 |
 
 The two body files are distinct; neither is authenticated as the 1991 1000CS body. See [the committed probe](../scripts/probe_su2000_geometry.py), which prints only candidate counts, block offsets, and numerical bounds. The remaining work is to prove polygon-index structure, coordinate transforms and scaling, then compare against release-labeled 1000CS reference frames. **Do not yet replace game geometry with these candidates.**
+
+## Indexed polygon records identified (2026-11-13)
+
+The first model subrecord begins at absolute byte 52. Its five relative section offsets are stored at bytes 56, 60, 64, 68, 72, measured **relative to byte 52**. For the common layout, the candidate vertex section begins at `52 + u32be(56)`, with a big-endian count followed by 12-byte XYZ float triples. The polygon section begins at `52 + u32be(64)`, with a big-endian polygon count followed by variable-length records:
+
+- `u32be corner_count`
+- `u32be packed_attribute` (meaning not yet decoded)
+- `u32be reserved_or_material` (meaning not yet decoded)
+- `corner_count` consecutive big-endian 32-bit vertex indices
+
+In `RAIL.BIN`, the first polygon has four indices `(4, 0, 11, 3)` and attribute `0x38000000`. In `DACTYL/DACBOD.BIN`, the first polygon has four indices `(14, 15, 25, 24)` and attribute `0x6000000c`. Both index lists are within their model's candidate vertex count; both polygon streams end **exactly** at the declared polygon-section boundary.
+
+The first-block layout was checked against all **275 BIN 0200** files: **237** passed vertex-section size, polygon record boundary, and vertex-index bounds checks, yielding **11,835 candidate vertices and 16,944 indexed polygons**. **38** failed the strict common-layout test, often due to alternative section layouts; this is not evidence of corrupt files. Some models contain multiple subrecords or other structures that need separate decoding. See [read-only polygon validator](../scripts/validate_su2000_polygons.py).
+
+**Scope:** These are authentic structural observations from the 1994 SU2000 disc. Polygon color/material encoding, object transforms, other model layouts and 1991 correspondence remain unresolved. The tool outputs aggregate counts and failures only, not proprietary mesh data.
