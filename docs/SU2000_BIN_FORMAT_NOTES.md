@@ -89,3 +89,17 @@ In `RAIL.BIN`, the first polygon has four indices `(4, 0, 11, 3)` and attribute 
 The first-block layout was checked against all **275 BIN 0200** files: **237** passed vertex-section size, polygon record boundary, and vertex-index bounds checks, yielding **11,835 candidate vertices and 16,944 indexed polygons**. **38** failed the strict common-layout test, often due to alternative section layouts; this is not evidence of corrupt files. Some models contain multiple subrecords or other structures that need separate decoding. See [read-only polygon validator](../scripts/validate_su2000_polygons.py).
 
 **Scope:** These are authentic structural observations from the 1994 SU2000 disc. Polygon color/material encoding, object transforms, other model layouts and 1991 correspondence remain unresolved. The tool outputs aggregate counts and failures only, not proprietary mesh data.
+
+## Exception classification: outer header variants (2026-11-13)
+
+A separate full-disc read-only scan of the 279 `.BIN` entries identifies **three** outer-header classes by the ASCII version and big-endian word at absolute byte 20:
+
+| Class | Files | Interpretation |
+| --- | ---: | --- |
+| `BIN 0200`, byte-20 word = 36 | 262 | Common longer header, including the 237 validated indexed-polygon files |
+| `BIN 0200`, byte-20 word = 24 | 13 | Shorter header; the previous parser incorrectly treated bytes at 52 as a nested section directory |
+| `BIN 0300` | 4 | Different version; all four are in `DAC/MODELS/PEARL/` |
+
+The **13 short-header files** are `360`, `3DSOUND`, `BLA3`, `CPU`, `DACTYL`, `FUTURE`, `NMARE`, `STARF`, `STEALTH`, `STING`, `TUBESECT`, `VEGA`, and `VIRTUAL`, all in `DAC/MODELS/OBJECTS/`. The four `BIN 0300` files are `CLAM`, `PLATC`, `PLATN`, and `STAIRN` in `DAC/MODELS/PEARL/`.
+
+**Correction:** The earlier total of 38 common-layout failures is not one homogeneous exception class. Thirteen have the shorter outer header; **25 still have the common 36-byte header** but fail the strict vertex/polygon checks. This does not establish their internal schemas. See [classifier](../scripts/classify_su2000_models.py). Polygon attributes remain undecoded.
