@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-test('four browser players share server combat, reconnect and survive creator departure', async ({ browser }) => {
+test('four browser players share validated movement, reconnect and survive creator departure', async ({ browser }) => {
   test.setTimeout(30000);
   const contexts=[],pages=[],errors=[];
   try {
@@ -16,14 +16,14 @@ test('four browser players share server combat, reconnect and survive creator de
     for(const page of pages)await expect.poll(()=>page.evaluate(()=>Object.keys(others).length)).toBe(3);
     await pages[0].locator('#solo').click();
     for(const page of pages)await expect.poll(()=>page.evaluate(()=>dactylRelay.match.phase)).toBe('running');
-    await pages[0].evaluate(()=>{Object.assign(me,{x:-13,y:2,z:3});yaw=0;pitch=0;send({type:'state',...me});});
-    await pages[1].evaluate(()=>{Object.assign(me,{x:-13,y:2,z:5});send({type:'state',...me});});
-    // Initial respawn immunity resets on authoritative match start.
-    await pages[0].waitForTimeout(4100);
-    await pages[0].locator('#fire').click();
-    await expect.poll(()=>pages[0].evaluate(()=>score)).toBe(1);
-    await expect.poll(()=>pages[1].evaluate(()=>dactylRelay.epoch)).toBe(2);
-    for(const page of pages)await expect(page.locator('#roomScores')).toContainText(/P1.*: 1/);
+    // Move for real on the hosting phone. No test-only teleport through walls:
+    // a server running the movement guard must accept normal 3.5-unit/s travel.
+    const hostId=await pages[0].evaluate(()=>dactylRelay.id);
+    await pages[0].evaluate(()=>{yaw=0;keys.KeyW=true});
+    await pages[0].waitForTimeout(280);
+    await pages[0].evaluate(()=>{keys.KeyW=false});
+    await expect.poll(()=>pages[1].evaluate(id=>others[id]?.z,hostId)).toBeGreaterThan(3.5);
+    for(const page of pages)await expect(page.locator('#roomScores')).toContainText(/P1.*: 0/);
     const id=await pages[1].evaluate(()=>dactylRelay.id);
     await pages[1].evaluate(()=>dactylRelay.socket.close());
     await expect.poll(()=>pages[1].evaluate(()=>dactylRelay.connected)).toBe(true);
