@@ -60,4 +60,23 @@ test('Cardboard depth moves eyes symmetrically and keeps headtracking user contr
  await expect(page.locator('#hudRight')).toBeVisible();
  await page.locator('#menuBtn').click();
  await expect(page.locator('#menu')).toBeVisible();
+ expect(await page.evaluate(()=>({vr,playing,motionAllowed,bodyClass:document.body.classList.contains('vr')})))
+   .toEqual({vr:false,playing:false,motionAllowed:false,bodyClass:false});
+});
+
+test('gamepad menu and portrait rotation always stop head tracking',async({page})=>{
+ await page.setViewportSize({width:844,height:390});
+ await page.addInitScript(()=>Object.defineProperty(window,'DeviceOrientationEvent',{
+  configurable:true,value:{requestPermission:async()=>'granted'}
+ }));
+ await page.goto('/');
+ await page.locator('#cardboard').click();
+ await page.evaluate(()=>gamepadActions({buttons:Array.from({length:10},(_,i)=>({pressed:i===9}))}));
+ expect(await page.evaluate(()=>({vr,playing,motionAllowed})))
+   .toEqual({vr:false,playing:false,motionAllowed:false});
+ await page.locator('#cardboard').click();
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.locator('#menu')).toBeVisible();
+ expect(await page.evaluate(()=>({vr,playing,motionAllowed})))
+   .toEqual({vr:false,playing:false,motionAllowed:false});
 });
