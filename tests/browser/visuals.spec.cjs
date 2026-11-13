@@ -17,10 +17,10 @@ test('reference views render all rebuilt objects in mono and stereo',async({page
    g.lineTo=(x,y)=>{vertices++;if(!Number.isFinite(x+y))invalid++;original(x,y);};
    if(stereo){draw(0,W/2,-1,true);draw(W/2,W/2,1,true);}else draw(0,W,0,true);
    g.lineTo=original;
-   return {vertices,invalid,parts:[...new Set(faces.map(f=>f.part))],faces:faces.length};
+   return {vertices,invalid,parts:[...new Set(faces.map(f=>f.part))],faces:faces.length,triangles:faces.reduce((sum,f)=>sum+f.v.length-2,0)};
   },{position,angle,tilt,stereo});
   expect(result.invalid).toBe(0);expect(result.vertices).toBeGreaterThan(100);
-  expect(result.faces).toBeLessThan(2000);
+  expect(result.triangles).toBeLessThan(4400);
   for(const part of ['checks','column','arch','ring','marker','weapon','hand','bird','avatar'])expect(result.parts).toContain(part);
   expect(await page.evaluate(()=>vr)).toBe(stereo);
   if(stereo)await expect(page.locator('#pad')).toBeHidden();
