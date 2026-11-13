@@ -16,3 +16,10 @@
 ## Tests
 
 Run `npm test`, `npm run test:browser` and the real-WebSocket integration tests. They cover exact 180-second boundaries, reconnecting mid-round, score freezing, restarting, 4-player join/fire behavior, solo expiry, reset and Cardboard text parity. Physical iPhone/controller and four-person live-room testing remain outstanding.
+
+## Historical score display and final results evidence (2026-11-13)
+
+See [original startup, scoreboard and end-screen source audit](ORIGINAL_STARTUP_AND_SCREEN_EVIDENCE.md).
+The verified earlier GamePro recording review documented **02/05 with 0:47 left at 791 s** and **03/06 with 0:26 left at 812 s**, with large segmented, beveled numerals. A reproduced Virtuality PLC screenshot in Sherman and Craig's technical description identifies the **remaining clock at the top** and reports that the player with the most hits wins on timeout; the text also describes a **one-point penalty for being killed by the bird**. This is documentary evidence about gameplay and scoring, **not** a recovered original game-over-screen image or guaranteed 1991 launch-build rules. No genuine winner-display lettering, leaderboard graphic or attract-screen capture has yet been verified.
+
+The current application's modern final-score/result panel is intentionally a convenience for phone players. Do not dress it up as an authenticated original `GAME OVER` display until an uninterrupted original match-ending video or game asset proves one. Investigate the bird point penalty against period recording and software revision before treating a secondary technical description as definitive for every 1000CS release.

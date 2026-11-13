@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "description": "Source-graded interface/sequence observations. Coordinates are pixels only when known; no gameplay art or video redistributed.",
+  "reviewDate": "2026-11-13",
+  "sourceVideo": {
+    "id": "V03",
+    "url": "https://archive.org/download/gamepro-tv/Gamepro%20S01E23%20%281991%29.ia.mp4",
+    "claimedFilenameYear": 1991,
+    "broadcastDate": "uncertain; matching excerpt mentions April 1992 rentals",
+    "pixelWidth": 1920,
+    "pixelHeight": 1080,
+    "sha1": "d2e408d6fb0b418f84765af66d5a67be2c5508e9",
+    "originalDownloadedAndVerified": "2026-11-08",
+    "reacquiredInThisAudit": false,
+    "reviewScope": "timecode observations imported from prior, checksum-verified visual review, not direct new extraction"
+  },
+  "observations": [
+    {
+      "id": "HUD_V03_791",
+      "timestampSeconds": 791,
+      "context": "gameplay",
+      "recordedFrom": "docs/PERIOD_VISUAL_TARGET.md",
+      "observed": {
+        "scorePair": [
+          "02",
+          "05"
+        ],
+        "remaining": "0:47",
+        "glyphs": "large bevelled/segmented"
+      },
+      "revision": "original-era 1000CS not dated exactly",
+      "confidence": "medium-high",
+      "needs": [
+        "reacquire frame",
+        "measure numeral bounding boxes",
+        "rule out show graphics overlay"
+      ]
+    },
+    {
+      "id": "HUD_V03_812",
+      "timestampSeconds": 812,
+      "context": "gameplay",
+      "recordedFrom": "docs/PERIOD_VISUAL_TARGET.md",
+      "observed": {
+        "scorePair": [
+          "03",
+          "06"
+        ],
+        "remaining": "0:26",
+        "glyphs": "large bevelled/segmented"
+      },
+      "revision": "original-era 1000CS not dated exactly",
+      "confidence": "medium-high",
+      "needs": [
+        "reacquire frame",
+        "compare glyphs/position with 791",
+        "verify the next frame at 0:00 if available"
+      ]
+    },
+    {
+      "id": "AERIAL_V03_800",
+      "timestampSeconds": 800,
+      "context": "aerial original-era game footage",
+      "recordedFrom": "docs/PERIOD_VISUAL_TARGET.md",
+      "observed": {
+        "boards": "center and four outer boards, checkerboard top surfaces",
+        "bird": "green angular wings and pale claws"
+      },
+      "confidence": "high for visible objects, low for camera cause",
+      "needs": [
+        "classify observer camera vs bird capture vs intro viewpoint",
+        "check broadcast edit at shot boundary",
+        "do not use as an original intro screen without sequence evidence"
+      ]
+    },
+    {
+      "id": "START_GREEN_1995",
+      "source": "https://ir.canterbury.ac.nz/bitstream/10092/4592/1/green_thesis.pdf",
+      "dateOfExperience": "1995-01",
+      "page": "printed 56",
+      "context": "first-person ethnographic field notes",
+      "observed": {
+        "sequence": "starts with aerial/disembodied board view then at ground level looking toward four-pillared open temple"
+      },
+      "confidence": "high as recollection of 1995 experience, low exact animation",
+      "needs": [
+        "trace whether it was player camera or external monitor",
+        "corroborate actual clip"
+      ]
+    },
+    {
+      "id": "START_PEMBERTON_1994",
+      "source": "https://www.independent.co.uk/arts-entertainment/don-t-mind-if-i-do-how-do-you-feel-when-you-get-carried-off-by-a-large-pterodactyl-nick-pemberton-found-it-all-too-real-for-his-liking-well-virtually-1438607.html",
+      "dateOfExperience": "1994",
+      "context": "firsthand journalistic play",
+      "observed": {
+        "sequence": "felt carried through space down to starting platform"
+      },
+      "confidence": "moderate; subjective description",
+      "needs": [
+        "separate animation from perceptual sensation"
+      ]
+    },
+    {
+      "id": "BIRD_AMIGAWORLD_1992",
+      "source": "https://amigaland.com/dataz/press_magazine/Amiga_World/PDF_TXT/Amiga_World_Vol_08_09_1992_Sep.pdf",
+      "dateOfExperience": "by 1992-09",
+      "context": "firsthand Limelight Club play, Rajesh Goel",
+      "observed": {
+        "birdsCountClaimed": 2,
+        "cameraDuringBirdCapture": "third person",
+        "attackTriggerDescription": "shooting too fast or too often without hits"
+      },
+      "confidence": "contemporary eyewitness; independent corroboration pending",
+      "needs": [
+        "visual count in contemporaneous full footage",
+        "check two birds in same shot",
+        "measure camera transition"
+      ]
+    },
+    {
+      "id": "TITLE_OR_END_2026",
+      "context": "negative historical research result",
+      "recordedFrom": "2026-11-13 audit",
+      "observed": {
+        "playerFacingTitle": null,
+        "attractFrame": null,
+        "gameOverFrame": null,
+        "winnerTypography": null
+      },
+      "confidence": "unknown",
+      "needs": [
+        "original uninterrupted footage through 0:00",
+        "distinguish operator/demos and TV overlays",
+        "seek original program assets if lawful"
+      ]
+    },
+    {
+      "id": "PLAY_CGW_DEC_1991",
+      "source": "https://manuals.plus/m/d2a3398c133ee5dabca1345eccb95f2c52511421175a705f05439cde04409888",
+      "dateOfExperience": "1991-12-11",
+      "publication": "Computer Gaming World 91, February 1992",
+      "context": "Russell Sipe's firsthand four-player session at DV8, San Francisco",
+      "observed": {
+        "players": 4,
+        "avatarSquattingTracksPlayer": true,
+        "sessionMinutesApproximately": 3.5,
+        "paidSessionUsd": 4
+      },
+      "confidence": "contemporaneous primary witness; precise timed game duration not isolated from preparation",
+      "needs": [
+        "separate paid duration from configured internal game clock",
+        "no original startup/ending pixels described"
+      ]
+    },
+    {
+      "id": "CAMERA_MANUAL_1993",
+      "source": "https://vrtifacts.com/wp-content/uploads/filebase/Virtuality-1000CS-Service-Manual.pdf",
+      "publication": "1993-09/10",
+      "page": "printed 1.14 (PDF page 20)",
+      "context": "manufacturer command-line options",
+      "observed": {
+        "cameraExalityModeOption": "c",
+        "requiresExtraHardware": true
+      },
+      "confidence": "direct manufacturer manual; not evidence any recorded game used option",
+      "needs": [
+        "classify aerial television frames vs player headset",
+        "record extra camera equipment where documented"
+      ]
+    }
+  ]
+}

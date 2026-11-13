@@ -64,3 +64,30 @@ local and in memory until exported; images are neither uploaded nor included in
 JSON. Automated Chromium/WebKit tests cover importing, reopening, editing, image
 mismatch, repeated saves and export at a phone-sized viewport. Physical iPhone
 Files/download behavior still needs checking.
+
+## Interface and opening/endgame sequence audit (2026-11-13)
+
+The new [original startup and screen evidence dossier](ORIGINAL_STARTUP_AND_SCREEN_EVIDENCE.md) and structured [original-interface observations](../research/original-interface-observations.json) distinguish **previously inspected original-era gameplay frames** from **newly discovered printed eyewitness and operator evidence**. In this research pass, direct downloads of the V03 television file and continuous YouTube streams were not available; **no new frame extraction was performed**. The recorded V03 timecodes are reproducible observations from the earlier checksum-verified archive inspection, not newly seen screenshots.
+
+### What to look for when uninterrupted footage is available
+
+For each clip, annotate the sequence **before credit → credit → operator start → first headset display → first-person play → aerial views or bird capture → last seconds → 0:00 → results → demo/attract**. Label every frame as `gameplay`, `gameplay HUD`, `operator Amiga display`, `engineering/test menu`, `marketing artwork`, `television program overlay`, or `uncertain`. Never equate a video editor's text with game output.
+
+For every frame relevant to opening/results, record source ID, **video timestamp and game-clock reading separately**, pixel dimensions and crop, mode, score glyphs with bounding boxes, countdown position, opponent labels, camera height/attitude, visible bird count, number of identifiable architecture landmarks, and neighboring cuts. A single aerial view is **not** proof of the documented overhead opening: it could be third-person capture, a monitor observer view, or an edited television montage.
+
+Prior archived V03 observations:
+- 791 s: `02/05` and `0:47` during original-era gameplay.
+- 812 s: `03/06` and `0:26` during original-era gameplay.
+- ~800–805 s: aerial multi-platform view with green bird; actual camera ownership unresolved.
+- 787–818 s: no documented `0:00` or original winner/result graphic in the previously inspected sample.
+
+### Specific independent sources to acquire
+
+1. [1992 *Amiga World* eyewitness](https://amigaland.com/dataz/press_magazine/Amiga_World/PDF_TXT/Amiga_World_Vol_08_09_1992_Sep.pdf): describes **two** circling pterodactyls and a **third-person view during capture**. These conflict with the current single-bird/first-person model. Need independent gameplay frames, not extrapolation.
+2. [Nicola Green's 1995 firsthand ethnography](https://ir.canterbury.ac.nz/bitstream/10092/4592/1/green_thesis.pdf), printed p.56: opening overhead view followed by being on the playing field. Figure 3-3 is a *participant's drawn arena map*, not native game output; worth inspecting for independent layout constraints.
+3. [1994 *Independent* play account](https://www.independent.co.uk/arts-entertainment/don-t-mind-if-i-do-how-do-you-feel-when-you-get-carried-off-by-a-large-pterodactyl-nick-pemberton-found-it-all-too-real-for-his-liking-well-virtually-1438607.html): arrival through space down to starting platform.
+4. [1993 Virtuality 1000CS service manual](https://vrtifacts.com/wp-content/uploads/filebase/Virtuality-1000CS-Service-Manual.pdf), printed pp. 1.12–1.14: operator/demo/credit, F7/F8 mode, F10 start and graphical operator/test displays. **Do not misidentify Engineering Test System displays as Dactyl title screens.**
+5. The 1995 documentary [*Synthetic Pleasures* production credits](https://culturesofresistancefilms.com/synthetic-pleasures-credits/) explicitly attribute original Dactyl footage to Virtuality Entertainment/Horizon Entertainment; the footage still needs timecoding.
+6. Complete V01 (2022 1000CS) and V02 (2016 1000CS) original-hardware play sessions, preferably including startup and final match state. Distinguish hardware monitor, player headset feed and later video editorial overlays.
+
+No authenticated 1000CS title screen, user-operated main menu, `GAME OVER` result screen or winner graphic was recovered by this audit. Treat absence as an **open retrieval task**, not historical proof they never existed.
