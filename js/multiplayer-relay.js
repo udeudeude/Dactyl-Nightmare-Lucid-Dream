@@ -20,7 +20,7 @@
   function storeSession(value){saved=value;try{if(value)sessionStorage.setItem(sessionKey,JSON.stringify(value));else sessionStorage.removeItem(sessionKey);}catch{}}
   const messages={room_full:'Room is full (four seats, including reconnecting friends).',room_expired:'Room ended or server restarted. Create a new room.',session_expired:'Your reconnect reservation expired. Join the room again.',invalid_room:'Enter a code such as LD-1234ABCD.',unavailable:'Server unavailable. Check its address and try again; a sleeping free server may need a minute.',replaced:'This seat was resumed in another tab.',server_full:'Server is busy. Please try again later.',protocol_version:'Game and server versions differ. Reload the game.'};
   function clearPeers(){for(const connection of conns)connection.close();conns=[];peer?.destroy();peer=null;others={};shots=[];targets={};}
-  function resetToSolo(){birdTrigger.reset();room='';id='local';others={};shots=[];targets={};scoreBoard.textContent='';shareButton.hidden=true;}
+  function resetToSolo(){if(window.dactylRelay)window.dactylRelay.match={phase:'lobby',endsAt:null,duration:180};birdTrigger.reset();room='';id='local';others={};shots=[];targets={};scoreBoard.textContent='';shareButton.hidden=true;}
   const relay=new DactylRelay.Client({
     save:storeSession,
     onStatus(state,code){
@@ -35,12 +35,27 @@
       }
     },
     onEvent(data){
+      if(data.match)relay.match=data.match;
+      if(Number.isFinite(data.serverTime))relay.serverOffset=data.serverTime-Date.now();
       if(data.type==='welcome'){
         if(id!==data.id)birdTrigger.reset();clearPeers();latestSequence=-1;room=data.room;id=data.id;score=data.self.score;
         Object.assign(me,{x:data.self.x,y:data.self.y,z:data.self.z});
         birdCarry=0;birdAttack=0;invulnerable=4;lastShot=-Infinity;
         shots=data.shots.map(b=>({...b}));
         document.querySelector('#room').value=room;shareButton.hidden=false;
+      }else if(data.type==='match_start'){
+        const self=data.players.find(p=>p.id===id);
+        if(self){
+          relay.epoch=self.epoch;score=self.score;
+          Object.assign(me,{x:self.x,y:self.y,z:self.z});
+        }
+        world=0;shots=[];lastShot=-Infinity;birdTrigger.reset();birdCarry=0;birdAttack=0;
+        document.querySelector('#matchResult').hidden=true;
+      }else if(data.type==='match_end'){
+        const players=data.players||[];
+        const ranked=players.slice().sort((a,b)=>b.score-a.score);
+        const standings=ranked.map((p,i)=>(i+1)+'. '+(p.id===id?'You':'Player '+(p.id.slice(0,4)))+': '+p.score).join(' · ');
+        finishMatch('Time up. Final standings: '+standings);
       }else if(data.type==='snapshot' && data.sequence>latestSequence){
         latestSequence=data.sequence;
         const next={};
@@ -63,6 +78,9 @@
       }
     }
   });
+  relay.match={phase:'lobby',endsAt:null,duration:180};
+  relay.serverOffset=0;
+  relay.remainingSeconds=()=>relay.match?.endsAt==null?180:Math.max(0,Math.ceil((relay.match.endsAt-Date.now()-relay.serverOffset)/1000));
   window.dactylRelay=relay;
   // Interpolate visible opponents without predicting through walls or extrapolating
   // indefinitely after a disconnect. Self movement stays immediate on this phone.
