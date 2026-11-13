@@ -53,3 +53,21 @@ test('cylindrical hit test respects player height and near approach, not just en
  assert.equal(P.actorImpact([0,4,0],[0,4,5],{x:0,y:0,z:3}),null);
  assert.equal(P.actorImpact([0,1,0],[0,1,5],{x:3,y:0,z:3}),null);
 });
+
+test('a shot crosses the actual bird mesh and can stop an approach',()=>{
+ const birdWorld=P.makeWorld(V.bird({x:0,y:8,z:0,heading:0,flap:0}));
+ assert.ok(birdWorld.length>15);
+ const s=shot(0,8,6,0,0,-30);
+ const hit=P.advance(s,.25,[],[],s.owner,birdWorld);
+ assert.equal(hit.kind,'bird');
+ assert.equal(s.ttl,0);
+ assert.ok(s.z>.4&&s.z<2.5);
+});
+test('nearer architecture blocks an aimed shot before it reaches the bird',()=>{
+ const birdWorld=P.makeWorld(V.bird({x:0,y:8,z:0,heading:0,flap:0}));
+ const closer=P.makeWorld([{part:'wall',v:[[-2,6,4],[2,6,4],[0,10,4]],color:'#ffffff'}]);
+ const s=shot(0,8,6,0,0,-30);
+ const hit=P.advance(s,.25,closer,[],s.owner,birdWorld);
+ assert.equal(hit.kind,'scenery');
+ assert.equal(hit.part,'wall');
+});
