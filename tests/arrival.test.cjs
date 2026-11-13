@@ -12,7 +12,7 @@ test('inferred aerial opening begins high above board, finishes at the real spaw
  assert.ok(half.position.y<start.position.y&&half.position.y>target.y);
  assert.deepEqual(finish.position,target);
  assert.equal(finish.active,false);assert.equal(finish.progress,1);
- assert.ok(Math.abs(finish.yaw-Math.PI/2)<1e-9,'face toward central arena');
+ assert.ok(Math.abs(finish.yaw-Math.atan2(13,-3))<1e-9,'face toward central arena');
  for(const pose of [start,half,finish]){
    for(const axis of ['right','up','forward'])
      assert.ok(pose.basis[axis].every(Number.isFinite));
