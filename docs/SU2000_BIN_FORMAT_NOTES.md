@@ -119,3 +119,20 @@ Examples: `OBJECTS/DACTYL.BIN` has 186 vertices and 103 indexed polygons; `OBJEC
 All four `DAC/MODELS/PEARL/*.BIN` files have been inspected directly. Their big-endian integer at byte **36** equals **file size minus 40**, and byte **40** is `65545`. A nested relative-offset table starts at byte **44**; the first value is `36`, with subsequent ascending values that remain within the file when interpreted relative to byte **36**. This is structurally consistent across `CLAM`, `PLATC`, `PLATN`, and `STAIRN`.
 
 This confirms a nested structured payload, **not** complete vertex/polygon decoding. The dedicated [read-only BIN 0300 probe](../scripts/probe_su2000_v0300.py) checks these boundaries without exporting assets. Material attributes and transformations remain unresolved.
+
+## Independent rerun and correction (2026-11-13, later pass)
+
+The original uploaded MDF and 857-row TSV manifest were available again. SHA-256 checksums match the disc-forensics report. A fresh **strict** parser of all 279 models, using the actual file extents and exact indexed-polygon bounds, found:
+
+| Classification | Files |
+| --- | ---: |
+| `BIN 0200` long header, fully passing | **229** |
+| Long header, out-of-range candidate indices | 25 |
+| Long header, non-monotonic section offsets | 8 |
+| Short header, fully passing | **12** |
+| Short header, nonstandard face count | 1 (`STARF.BIN`) |
+| `BIN 0300` not yet decoded | 4 |
+
+**Important correction:** This rerun validates **241**, not the previously claimed **249**, indexed-polygon models under the strict common assumptions. The previous 237 long-header success count is not reproduced. Eight exceptional files (`PEARL/STAIRE.BIN` and seven `ETS/MODELS/` files) have non-monotonic offsets; counting them as successful without resolving their section semantics is not justified. The 25 index failures include player anatomy/weapon models and eggs, which may involve different index bases or record semantics. Do not claim 18,453 verified polygons as a currently reproduced aggregate. Investigate these exceptions and rerun a single canonical validator before asserting revised totals.
+
+The strict rerun was performed directly against the original disc and manifest, not by executing an external original binary. This section supersedes conflicting earlier counts in this research log.
