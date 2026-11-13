@@ -1,6 +1,6 @@
 /* Optional, explicitly inferred 1000CS aerial-to-ground arrival.
    Independent 1994/95 player reports support the sequence, not its path.
-   Intentionally OFF by default; never force artificial camera translation in VR. */
+   The reconstruction exposes the inferred motion in Cardboard when selected. */
 (function(root,factory){
   const orientation=typeof module==='object'&&module.exports?require('./orientation.js'):root.DactylOrientation;
   const api=factory(orientation);
