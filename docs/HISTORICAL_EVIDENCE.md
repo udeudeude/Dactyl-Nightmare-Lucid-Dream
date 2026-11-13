@@ -33,8 +33,7 @@ phone does not change the server's current ten-shot threshold.
 
 The orbit, warning duration, broad capture radius, carry/drop timing, visual
 model, and sounds remain approximate. Server authority is an engineering improvement
-and does not establish original Virtuality bird physics. No projectile damage
-against the bird is implemented. Legacy PeerJS rooms remain locally simulated.
+and does not establish original Virtuality bird physics. The bird can now be repelled by an accurately intersecting projectile during its approach, as documented in the November 13 update below. This is a provisional reconstruction, not verified 1991 damage behavior. Legacy PeerJS rooms remain locally simulated.
 
 ## Remaining historical work with direct engineering value
 
