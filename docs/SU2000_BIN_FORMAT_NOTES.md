@@ -153,3 +153,11 @@ Measured examples from the 1994 SU2000 files:
 The third 32-bit word of the polygon record is zero for **18,053 of 18,342** validated faces; the remaining 289 have small nonzero values. This is evidence of structured per-face attributes, **not yet a decoded palette or material system**. In particular, `0x38000001` differing from `0x38000000` by one bit does not prove the low bit means a color. No proprietary mesh data or samples are published.
 
 **Correction:** Supersedes the earlier polygon total of 18,453. The number of validated models remains 241.
+
+## Material-word interpretation: strong color hypothesis (2026-11-13)
+
+A new cross-model inspection shows that many face-attribute words follow `0x20RRGGBB`, where the low 24 bits look like **direct red/green/blue intensities**: `0x20c80000` (200,0,0), `0x200000c8` (0,0,200), `0x20ffffff` (255,255,255), `0x201e1e1e` (30,30,30), `0x20f0c8c8` (240,200,200), `0x2010f0f0` (16,240,240). This is a **strongly supported decoding hypothesis**, not yet verified against a rendered original pixel or engine code.
+
+Other families (`0x22ffffff`, `0x38000000`, `0x38000001`, `0x6000000c`, `0x600000d0`) must **not** be blindly treated as direct colors: the upper byte may encode material mode, flags or palette lookup, and some low bytes may be indices. The apparent green `NEWDACTY/DACBOD.BIN` value `0x20004600` is consistent with direct RGB (0,70,0), whereas `DACTYL/DACBOD.BIN` uses `0x6000000c`, likely a different encoding class. This helps explain why copying all face words into web CSS colors would produce incorrect results.
+
+To validate: identify palette and texture tables, correlate colors with original SU2000 screenshots, check vertex winding and backface behavior, and separately establish 1000CS palette. No 1991 color match is claimed.
