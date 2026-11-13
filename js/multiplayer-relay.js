@@ -20,7 +20,7 @@
   function storeSession(value){saved=value;try{if(value)sessionStorage.setItem(sessionKey,JSON.stringify(value));else sessionStorage.removeItem(sessionKey);}catch{}}
   const messages={room_full:'Room is full (four seats, including reconnecting friends).',room_expired:'Room ended or server restarted. Create a new room.',session_expired:'Your reconnect reservation expired. Join the room again.',invalid_room:'Enter a code such as LD-1234ABCD.',unavailable:'Server unavailable. Check its address and try again; a sleeping free server may need a minute.',replaced:'This seat was resumed in another tab.',server_full:'Server is busy. Please try again later.',protocol_version:'Game and server versions differ. Reload the game.'};
   function clearPeers(){for(const connection of conns)connection.close();conns=[];peer?.destroy();peer=null;others={};shots=[];targets={};}
-  function resetToSolo(){if(window.dactylRelay)window.dactylRelay.match={phase:'lobby',endsAt:null,duration:180};birdTrigger.reset();room='';id='local';others={};shots=[];targets={};scoreBoard.textContent='';shareButton.hidden=true;}
+  function resetToSolo(){if(window.dactylRelay){window.dactylRelay.match={phase:'lobby',endsAt:null,duration:180};window.dactylRelay.bird=null;}birdTrigger.reset();room='';id='local';others={};shots=[];targets={};scoreBoard.textContent='';shareButton.hidden=true;}
   const relay=new DactylRelay.Client({
     save:storeSession,
     onStatus(state,code){
@@ -36,11 +36,12 @@
     },
     onEvent(data){
       if(data.match)relay.match=data.match;
+      if(Object.prototype.hasOwnProperty.call(data,'bird'))relay.bird=data.bird;
       if(Number.isFinite(data.serverTime))relay.serverOffset=data.serverTime-Date.now();
       if(data.type==='welcome'){
         if(id!==data.id)birdTrigger.reset();clearPeers();latestSequence=-1;room=data.room;id=data.id;score=data.self.score;
         Object.assign(me,{x:data.self.x,y:data.self.y,z:data.self.z});
-        birdCarry=0;birdAttack=0;invulnerable=4;lastShot=-Infinity;
+        birdCarry=0;birdAttack=0;invulnerable=4;lastShot=-Infinity;birdNotice='';
         shots=data.shots.map(b=>({...b}));
         document.querySelector('#room').value=room;shareButton.hidden=false;
       }else if(data.type==='match_start'){
@@ -49,7 +50,7 @@
           relay.epoch=self.epoch;score=self.score;
           Object.assign(me,{x:self.x,y:self.y,z:self.z});
         }
-        world=0;shots=[];lastShot=-Infinity;birdTrigger.reset();birdCarry=0;birdAttack=0;
+        world=0;shots=[];lastShot=-Infinity;birdTrigger.reset();birdCarry=0;birdAttack=0;birdNotice='';
         document.querySelector('#matchResult').hidden=true;
       }else if(data.type==='match_end'){
         const players=data.players||[];
@@ -60,7 +61,15 @@
         latestSequence=data.sequence;
         const next={};
         for(const p of data.players){
-          if(p.id===id){score=p.score;continue;}
+          if(p.id===id){
+            score=p.score;
+            if(p.epoch!==relay.epoch){
+              relay.epoch=p.epoch;
+              Object.assign(me,{x:p.x,y:p.y,z:p.z});
+              earbudFireQueue.clear();
+            }
+            continue;
+          }
           if(p.online){next[p.id]=p;if(!others[p.id])others[p.id]={x:p.x,y:p.y,z:p.z};}
         }
         targets=next;
@@ -68,7 +77,20 @@
         scoreBoard.textContent=data.players.map((p,i)=>'P'+(i+1)+(p.id===id?' (you)':'')+': '+p.score+(p.online?'':' · reconnecting')).join('  |  ');
       }else if(data.type==='shot'){
         // The local predicted shot is already visible and audible.
-        if(data.b.owner!==id)shots.push({...data.b});else{recordDactylShot();const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
+        if(data.b.owner!==id)shots.push({...data.b});else{const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
+      }else if(data.type==='bird_event'){
+        const event=data.event;
+        if(event?.target===id){
+          if(event.kind==='approach'){
+            birdNotice='DACTYL APPROACHING';sound('screech');
+          }else if(event.kind==='seize'||event.kind==='drop'){
+            if(Number.isInteger(event.epoch))relay.epoch=event.epoch;
+            if(event.position)Object.assign(me,event.position);
+            earbudFireQueue.clear();
+            birdNotice=event.kind==='seize'?'SEIZED BY THE DACTYL':'DROPPED BY THE DACTYL';
+            sound(event.kind==='seize'?'grab':'fall');
+          }else if(event.kind==='miss')birdNotice='DACTYL MISSED';
+        }
       }else if(data.type==='correction'){
         // The server never accepts teleporting through architecture or
         // moving faster than the validated ground movement budget.
@@ -84,6 +106,7 @@
     }
   });
   relay.match={phase:'lobby',endsAt:null,duration:180};
+  relay.bird=null;
   relay.serverOffset=0;
   relay.remainingSeconds=()=>relay.match?.endsAt==null?180:Math.max(0,Math.ceil((relay.match.endsAt-Date.now()-relay.serverOffset)/1000));
   window.dactylRelay=relay;
