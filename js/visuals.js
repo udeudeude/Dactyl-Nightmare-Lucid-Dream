@@ -38,7 +38,11 @@
     for(let j=1;j<profile.length;j++)for(let i=0;i<n;i++){
       const a=i*Math.PI/4,b=(i+1)*Math.PI/4;
       const at=(k,t)=>[x+profile[k][1]*Math.cos(t),y+profile[k][0],z+profile[k][1]*Math.sin(t)];
-      m.face([at(j-1,a),at(j-1,b),at(j,b),at(j,a)],colors[i%colors.length],part);
+      const baseA=at(j-1,a),baseB=at(j-1,b),topA=at(j,a),topB=at(j,b);
+      // An actual triangle at a pointed tip, not a quad with duplicate apex.
+      const vertices=profile[j][1]===0?[baseA,baseB,topB]:
+        profile[j-1][1]===0?[baseA,topB,topA]:[baseA,baseB,topB,topA];
+      m.face(vertices,colors[i%colors.length],part);
     }
   }
   // A solid extruded convex polygon, used for each arch segment and gun profile.
@@ -119,7 +123,13 @@
     const contour=(z,w,h)=>[[-w,-h,z],[w,-h,z],[w,h*.5,z],[w*.5,h,z],[-w*.5,h,z],[-w,h*.5,z]];
     for(let k=1;k<sections.length;k++){
       const a=contour(...sections[k-1]),b=contour(...sections[k]);
-      for(let i=0;i<a.length;i++)m.face([a[i],a[(i+1)%a.length],b[(i+1)%a.length],b[i]],i%2?P.gun:P.gunSide,'weapon');
+      for(let i=0;i<a.length;i++){
+        // Tapering hexagonal sections produce nonplanar quadrilaterals.
+        // Explicit facets make both the depth renderer and Canvas consistent.
+        const j=(i+1)%a.length,color=i%2?P.gun:P.gunSide;
+        m.face([a[i],a[j],b[j]],color,'weapon');
+        m.face([a[i],b[j],b[i]],color,'weapon');
+      }
     }
     m.face(contour(...sections[sections.length-1]),P.gunDark,'weapon');
     m.box(0,-.22,.1,.12,.22,.17,P.gun,P.gunSide,P.gunDark,'weapon');
