@@ -80,3 +80,24 @@ test('gamepad menu and portrait rotation always stop head tracking',async({page}
  expect(await page.evaluate(()=>({vr,playing,motionAllowed})))
    .toEqual({vr:false,playing:false,motionAllowed:false});
 });
+
+test('software fallback accepts tuned left/right eye depth without WebGL',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.setViewportSize({width:844,height:390});
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+   const renderer=depthRenderer;depthRenderer=null;stereoSeparation=.12;
+   yaw=0;pitch=0;vr=true;
+   build();
+   draw(0,W/2,-1);draw(W/2,W/2,1);
+   const left=DactylStereo.eyeOffset(0,2,stereoSeparation);
+   const right=DactylStereo.eyeOffset(1,2,stereoSeparation);
+   depthRenderer=renderer;
+   return {left,right,canvasWidth:c.width,canvasHeight:c.height};
+ });
+ expect(result.left).toBeCloseTo(-.06,5);
+ expect(result.right).toBeCloseTo(.06,5);
+ expect(result.canvasWidth).toBeGreaterThan(0);
+ expect(result.canvasHeight).toBeGreaterThan(0);
+ expect(errors).toEqual([]);
+});
