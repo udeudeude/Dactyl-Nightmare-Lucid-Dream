@@ -118,3 +118,20 @@ test('stair traversal, void behavior, spawn and computer patrol remain valid',()
    assert.equal(obstacleAt(x,z,platforms),null,`bot intersects scenery at ${t}`);
  }
 });
+
+test('bird-dropped players can exit an obstacle without making barriers walk-through',()=>{
+ const {moveOnGround,obstacleAt}=require('../js/geometry.js');
+ // Simulate a bird setting the player at the center of the upright ring.
+ const inside={x:0,y:0,z:0};assert.equal(obstacleAt(inside.x,inside.z,platforms),'ring');
+ const escaped=moveOnGround(inside,0,1.5,platforms,surfaces);
+ assert.ok(escaped.z>1.2);assert.equal(obstacleAt(escaped.x,escaped.z,platforms),null);
+ // Even a long, high-latency attempt from the outside cannot tunnel back through.
+ const blocked=moveOnGround(escaped,0,-3,platforms,surfaces);
+ assert.ok(blocked.z>.48,'never pass through a ring after leaving it');
+ assert.equal(obstacleAt(blocked.x,blocked.z,platforms),null);
+ // The same exception safely releases a person placed inside a support column.
+ const column={x:-2.58,y:0,z:-2.58};
+ assert.equal(obstacleAt(column.x,column.z,platforms),'column');
+ const release=moveOnGround(column,-1.5,0,platforms,surfaces);
+ assert.ok(release.x<-3.5);assert.equal(obstacleAt(release.x,release.z,platforms),null);
+});
