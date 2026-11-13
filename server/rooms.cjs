@@ -1,5 +1,9 @@
 'use strict';
 const { randomBytes, randomUUID } = require('node:crypto');
+const Geometry=require('../js/geometry.js');
+const Visuals=require('../js/visuals.js');
+const Projectiles=require('../js/projectiles.js');
+const WORLD=Projectiles.makeWorld(Visuals.arena(Geometry.PLATFORMS,Geometry.stairs(Geometry.PLATFORMS)));
 const SPAWNS = [{x:-13,y:2,z:3},{x:13,y:2,z:3},{x:3,y:2,z:-13},{x:3,y:2,z:13}];
 const GRACE_MS = 30000;
 const SHOT_INTERVAL_MS = 1800;
@@ -109,19 +113,23 @@ class Rooms {
       }
       if (!room.players.size) { this.rooms.delete(room.code); continue; }
       for (const b of room.shots) {
-        b.x += b.vx*dt; b.z += b.vz*dt; b.y += b.vy*dt; b.vy -= 9.8*dt; b.ttl -= dt;
-        if (b.ttl <= 0) continue;
-        for (const p of room.players.values()) {
-          if (p.id === b.owner || !p.socket || this.now() < p.shieldUntil) continue;
-          if (Math.hypot(b.x-p.x,b.z-p.z) < .9 && b.y > p.y && b.y < p.y+3) {
-            b.ttl = 0;
-            const attacker = room.players.get(b.owner);
-            if (attacker) attacker.score++;
-            Object.assign(p, SPAWNS[p.slot]); p.epoch++; p.shieldUntil = this.now()+4000;
-            this.broadcast(room, {type:'hit', shot:b.id, source:b.owner, target:p.id, self:this.publicPlayer(p)});
-            this.broadcast(room, this.snapshot(room));
-            break; // one projectile can award only one point
+        const actors=[...room.players.values()].filter(p=>p.socket).map(p=>({
+          id:p.id,x:p.x,y:p.y,z:p.z,shielded:this.now()<p.shieldUntil
+        }));
+        const impact=Projectiles.advance(b,dt,WORLD,actors,b.owner);
+        if(!impact)continue;
+        if(impact.kind==='player'){
+          const victim=room.players.get(impact.target);
+          const attacker=room.players.get(b.owner);
+          if(attacker)attacker.score++;
+          if(victim){
+            Object.assign(victim,SPAWNS[victim.slot]);victim.epoch++;
+            victim.shieldUntil=this.now()+4000;
+            this.broadcast(room,{type:'hit',shot:b.id,source:b.owner,target:victim.id,self:this.publicPlayer(victim)});
+            this.broadcast(room,this.snapshot(room));
           }
+        }else if(impact.kind==='scenery'){
+          this.broadcast(room,{type:'shot_end',shot:b.id,reason:'scenery',part:impact.part});
         }
       }
       room.shots = room.shots.filter(b => b.ttl > 0);
