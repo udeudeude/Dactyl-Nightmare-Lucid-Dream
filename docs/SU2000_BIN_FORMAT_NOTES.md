@@ -113,3 +113,9 @@ A second parser now recognizes the `BIN 0200` short-header family. The outer rel
 Examples: `OBJECTS/DACTYL.BIN` has 186 vertices and 103 indexed polygons; `OBJECTS/360.BIN` has 348 vertices and 175 indexed polygons. These filenames identify objects in the later SU2000 edition, not necessarily the 1991 playable bird.
 
 **Updated verified minimum:** 237 common-layout models + 12 short-header models = **249 indexed-polygon models**, with **14,917 candidate vertices** and **18,453 polygons**. These are structural counts, not a proof of correct scale, materials, transforms, or 1991 identity. The four `BIN 0300` files appear to contain nested model-like structures, but no fully validated parser is claimed yet.
+
+## BIN 0300 nested container verification (2026-11-13)
+
+All four `DAC/MODELS/PEARL/*.BIN` files have been inspected directly. Their big-endian integer at byte **36** equals **file size minus 40**, and byte **40** is `65545`. A nested relative-offset table starts at byte **44**; the first value is `36`, with subsequent ascending values that remain within the file when interpreted relative to byte **36**. This is structurally consistent across `CLAM`, `PLATC`, `PLATN`, and `STAIRN`.
+
+This confirms a nested structured payload, **not** complete vertex/polygon decoding. The dedicated [read-only BIN 0300 probe](../scripts/probe_su2000_v0300.py) checks these boundaries without exporting assets. Material attributes and transformations remain unresolved.
