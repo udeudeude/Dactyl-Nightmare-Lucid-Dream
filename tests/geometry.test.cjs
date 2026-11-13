@@ -65,3 +65,56 @@ test('ring collision includes player clearance and respects ring orientation',()
  assert.equal(ringBlocks(0,.7,platforms),false);
  assert.equal(ringBlocks(13.3,0,platforms),true);
 });
+
+test('visible columns and cones are physical obstacles on all five platforms',()=>{
+ const {ARCHITECTURE:A,obstacleAt}=require('../js/geometry.js');
+ const V=require('../js/visuals.js'),rendered=V.arena(platforms,surfaces);
+ const near=(a,b)=>Math.abs(a-b)<1e-10;
+ for(const p of platforms){
+   const span=p.w*A.columnSpanFraction/2,offset=p.w*A.markerOffsetFraction;
+   for(const dx of [-span,span])for(const dz of [-span,span]){
+     const cx=p.x+dx,cz=p.z+dz;
+     assert.equal(obstacleAt(cx,cz,platforms),'column');
+     assert.ok(rendered.some(face=>face.part==='column'&&face.v.some(([x,y,z])=>near(x,cx+A.columnBaseRadius)&&near(y,p.y)&&near(z,cz))));
+   }
+   for(const dx of [-offset,offset])for(const dz of [-offset,offset]){
+     const cx=p.x+dx,cz=p.z+dz;
+     assert.equal(obstacleAt(cx,cz,platforms),'marker');
+     assert.ok(rendered.some(face=>face.part==='marker'&&face.v.some(([x,y,z])=>near(x,cx+A.markerBaseRadius)&&near(y,p.y)&&near(z,cz))));
+   }
+ }
+});
+test('obstacle padding includes body radius but leaves the surrounding walkways usable',()=>{
+ const {ARCHITECTURE:A,obstacleAt}=require('../js/geometry.js');
+ const x=platforms[0].w*A.columnSpanFraction/2,z=x;
+ assert.equal(obstacleAt(x+A.columnBaseRadius+A.playerRadius-.04,z,platforms),'column');
+ assert.equal(obstacleAt(x+A.columnBaseRadius+A.playerRadius+.04,z,platforms),null);
+ for(const [x,z] of [[-13,3],[13,3],[3,-13],[3,13],[0,3]])
+   assert.equal(obstacleAt(x,z,platforms),null,`unintended obstacle at ${x},${z}`);
+});
+test('long movement cannot tunnel through columns and sliding preserves tangential movement',()=>{
+ const {obstacleAt,moveOnGround}=require('../js/geometry.js');
+ const start={x:-3.4,y:0,z:-2.58};
+ const straight=moveOnGround(start,2,0,platforms,surfaces);
+ assert.ok(straight.x > start.x);
+ assert.ok(straight.x < -3.2,'solid column must interrupt forward motion');
+ assert.equal(obstacleAt(straight.x,straight.z,platforms),null);
+ const diagonal=moveOnGround(start,1.2,1.2,platforms,surfaces);
+ assert.ok(diagonal.z>start.z+.6,'slide along the obstacle instead of freezing');
+ assert.equal(obstacleAt(diagonal.x,diagonal.z,platforms),null);
+});
+test('stair traversal, void behavior, spawn and computer patrol remain valid',()=>{
+ const {obstacleAt,moveOnGround,groundAt}=require('../js/geometry.js');
+ const climbed=moveOnGround({x:5.5,y:0,z:1},5.8,0,platforms,surfaces);
+ assert.ok(climbed.x>10.9,'must still be able to reach outer platforms by stairs');
+ assert.equal(climbed.y,2);
+ const off=moveOnGround({x:5.85,y:0,z:5.5},1,0,platforms,surfaces);
+ assert.ok(off.x>6&&off.x<6.6,'unsupported edges still allow controlled falling');
+ for(const [x,z] of [[-13,3],[13,3],[3,-13],[3,13]])
+   assert.equal(obstacleAt(x,z,platforms),null);
+ for(let t=0;t<1000;t+=.23){
+   const x=13+Math.sin(t*.55)*2,z=3.65+Math.sin(t*.7)*.2;
+   assert.equal(groundAt(x,z,platforms,surfaces),2);
+   assert.equal(obstacleAt(x,z,platforms),null,`bot intersects scenery at ${t}`);
+ }
+});
