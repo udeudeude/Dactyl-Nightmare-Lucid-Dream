@@ -2,7 +2,7 @@
 
 ## What the evidence establishes
 
-The Virtuality 1000CS service manual, printed p. 1.14, documents a default bird trigger after **ten shots** (`b<n>`). It separately documents a default 180-second round (`t<n>`). The original software's precise target selection, bird flight path, timing, shooting response, injury and point penalties remain unverified. The current implementation does **not** invent bird death or shooting damage.
+The Virtuality 1000CS service manual, printed p. 1.14, documents a default bird trigger after **ten shots** (`b<n>`). It separately documents a default 180-second round (`t<n>`). The original software's precise target selection, bird flight path, timing, shooting response, injury and point penalties remain unverified. Retrospective testimony now supports shooting down an approaching bird, but its exact collision rules, animation, damage and score consequences are unverified. The implementation uses a provisional defensive repulsion without inventing a scored kill or explosion.
 
 ## Model
 
@@ -13,7 +13,7 @@ The Virtuality 1000CS service manual, printed p. 1.14, documents a default bird 
 3. If the target is online and in range, the server owns a 2.2-second carry and updates the player's x/y/z each simulation tick. The client can **neither steer the carried avatar nor fire through the capture**. It displays the server-owned bird pose.
 4. A drop releases the player at height 5, from the bird's current horizontal position; ordinary falling and room movement validation then resume. Both seizure and drop increment the position epoch, invalidating delayed client updates.
 5. Attack warnings, seizure and drop are broadcast as `bird_event` messages. Every room snapshot and reconnect welcome includes the bird's phase, start time, target and sequence. Capture continues deterministically through a brief disconnection.
-6. There is a cooldown after a missed attempt or drop, and subsequent queued targets remain pending. The shared match clock terminates activity at 180 seconds. Room restart resets the bird and all counters.
+6. There is a cooldown after a missed attempt, repelled approach or drop, and subsequent queued targets remain pending. The shared match clock terminates activity at 180 seconds. Room restart resets the bird and all counters.
 
 These timings, cooldowns, orbit parameters and per-player trigger policy are **reconstruction choices**, not claims of recovered original game physics.
 
@@ -21,7 +21,7 @@ These timings, cooldowns, orbit parameters and per-player trigger policy are **r
 
 - `server/movement.cjs` no longer accepts an arbitrary aerial position simply because a player previously fired ten shots.
 - During a server-owned capture, even a packet with the current epoch is ignored. The next snapshot contains server coordinates.
-- The server owns shot eligibility, attack triggering, victim motion and respawn epochs. No network message allows a phone to claim a bird hit.
+- The server owns shot eligibility, attack triggering, victim motion and respawn epochs. Server-owned swept projectiles can repel an approaching bird only when they intersect its moving polygon mesh; no client claim is trusted.
 - Clients compute a smooth shared orbit from the time encoded in the authoritative snapshot, avoiding per-device frame-rate drift.
 - The visual model remains the provisional green polygon pterodactyl, not original recovered geometry.
 

@@ -17,11 +17,11 @@
   function create(startedAt){
     if(!Number.isFinite(startedAt))throw Error('Invalid bird start time');
     return {startedAt,phase:'patrol',target:null,until:null,
-      cooldownUntil:startedAt+INITIAL_COOLDOWN_MS,sequence:0};
+      cooldownUntil:startedAt+INITIAL_COOLDOWN_MS,hiddenUntil:0,sequence:0};
   }
   function publicState(bird){
     return {startedAt:bird.startedAt,phase:bird.phase,target:bird.target,
-      until:bird.until,sequence:bird.sequence};
+      until:bird.until,hiddenUntil:bird.hiddenUntil,sequence:bird.sequence};
   }
   function recordShot(player){
     player.birdShots=Math.min(SHOT_THRESHOLD,(player.birdShots||0)+1);
@@ -30,6 +30,14 @@
   function change(bird,phase,target,until){
     bird.phase=phase;bird.target=target;bird.until=until;bird.sequence++;
     return {phase,target,until};
+  }
+  function repel(bird,now,source){
+    if(bird.phase!=='approach'||!Number.isFinite(now))return null;
+    const target=bird.target;
+    change(bird,'patrol',null,null);
+    bird.cooldownUntil=now+RETRY_MS;
+    bird.hiddenUntil=now+2500;
+    return {kind:'repelled',target,source,sequence:bird.sequence};
   }
   function advance(bird,players,now){
     if(!Number.isFinite(now))throw Error('Invalid bird time');
@@ -78,5 +86,5 @@
     return events;
   }
   return {pose,create,publicState,recordShot,advance,
-    SHOT_THRESHOLD,ATTACK_MS,CARRY_MS};
+    SHOT_THRESHOLD,ATTACK_MS,CARRY_MS,repel};
 });

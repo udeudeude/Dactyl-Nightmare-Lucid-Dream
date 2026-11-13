@@ -182,11 +182,15 @@ class Rooms {
           this.broadcast(room,this.snapshot(room));
         }
       }
+      const birdPose=room.bird?.phase==='approach'?
+        Bird.pose(this.now(),room.bird.startedAt):null;
+      let birdWorld=birdPose?
+        Projectiles.makeWorld(Visuals.bird(birdPose)):null;
       for (const b of room.shots) {
         const actors=[...room.players.values()].filter(p=>p.socket).map(p=>({
           id:p.id,x:p.x,y:p.y,z:p.z,shielded:this.now()<p.shieldUntil
         }));
-        const impact=Projectiles.advance(b,dt,WORLD,actors,b.owner);
+        const impact=Projectiles.advance(b,dt,WORLD,actors,b.owner,birdWorld);
         if(!impact)continue;
         if(impact.kind==='player'){
           const victim=room.players.get(impact.target);
@@ -197,6 +201,16 @@ class Rooms {
             victim.shieldUntil=this.now()+4000;
             victim.moveAt=this.now();victim.moveCredit=Motion.START_CREDIT;
             this.broadcast(room,{type:'hit',shot:b.id,source:b.owner,target:victim.id,self:this.publicPlayer(victim)});
+            this.broadcast(room,this.snapshot(room));
+          }
+        }else if(impact.kind==='bird'){
+          const event=Bird.repel(room.bird,this.now(),b.owner);
+          birdWorld=null; // Other shots in this tick cannot hit a repelled bird.
+          this.broadcast(room,{type:'shot_end',shot:b.id,reason:'bird'});
+          if(event){
+            const victim=room.players.get(event.target);
+            this.broadcast(room,{type:'bird_event',event,bird:this.birdStatus(room),
+              self:victim?this.publicPlayer(victim):null,serverTime:this.now()});
             this.broadcast(room,this.snapshot(room));
           }
         }else if(impact.kind==='scenery'){

@@ -16,14 +16,20 @@ function updateStereoDepth(){
 }
 stereoSlider.oninput=updateStereoDepth;
 stereoOutput.textContent=DactylStereo.description(Number(stereoSlider.value))+
-  ' ('+stereoSlider.value+'%)';function recordDactylShot(){birdTrigger.recordShot()}let targetFPS=20,lastDraw=-Infinity,renderedFrames=0;let birdAttack=0,birdCarry=0,birdCooldown=7,birdNotice="",invulnerable=0;let remoteInput={x:0,z:0,fire:false},controllerPeer=null,controllerConn=null,controllerCode='',controllerLast=0;let cameraBasis=null;let W,H,vr=false,playing=false,yaw=Math.PI/2,pitch=0,base=null,tracking=false,mx=0,mz=0,fireHeld=false,lastShot=-Infinity,score=0,world=0,peer=null,room='',id='local',conns=[],others={},shots=[],keys={},last=0;
+  ' ('+stereoSlider.value+'%)';function recordDactylShot(){birdTrigger.recordShot()}let targetFPS=20,lastDraw=-Infinity,renderedFrames=0;let birdAttack=0,birdCarry=0,birdCooldown=7,birdRepelUntil=0,birdNotice="",invulnerable=0;let remoteInput={x:0,z:0,fire:false},controllerPeer=null,controllerConn=null,controllerCode='',controllerLast=0;let cameraBasis=null;let W,H,vr=false,playing=false,yaw=Math.PI/2,pitch=0,base=null,tracking=false,mx=0,mz=0,fireHeld=false,lastShot=-Infinity,score=0,world=0,peer=null,room='',id='local',conns=[],others={},shots=[],keys={},last=0;
 const me={x:-13,y:2,z:3},bot={x:13,y:2,z:3};const platforms=DactylGeometry.PLATFORMS;const stairSurfaces=DactylGeometry.stairs(platforms);let faces=[],bridges=[],birdX=0,birdY=8,birdZ=0,birdHeading=0,birdFlap=0;
 function size(){W=innerWidth;H=innerHeight;const d=Math.min(devicePixelRatio||1,2);c.width=W*d;c.height=H*d;g.setTransform(d,0,0,d,0,0);starCanvas.width=c.width;starCanvas.height=c.height;starContext.setTransform(d,0,0,d,0,0);depthRenderer?.resize(W,H,d)}addEventListener('resize',size);size();
 function face(v,color){faces.push({v,color})}function box(x,y,z,w,h,d,top='#aaa',side='#666',includeTop=true){let a=x-w/2,b=x+w/2,e=z-d/2,f=z+d/2;if(includeTop)face([[a,y+h,e],[b,y+h,e],[b,y+h,f],[a,y+h,f]],top);face([[a,y,e],[b,y,e],[b,y+h,e],[a,y+h,e]],side);face([[b,y,e],[b,y,f],[b,y+h,f],[b,y+h,e]],side);face([[b,y,f],[a,y,f],[a,y+h,f],[b,y+h,f]],side);face([[a,y,f],[a,y,e],[a,y+h,e],[a,y+h,f]],side)}
 const arenaFaces=DactylVisuals.arena(platforms,stairSurfaces),projectileWorld=DactylProjectiles.makeWorld(arenaFaces),actorVisualState=new Map();
 function build(){
   faces=arenaFaces.slice();
-  faces.push(...DactylVisuals.bird({x:birdX,y:birdY,z:birdZ,heading:birdHeading,flap:birdFlap}));
+  const remoteBird=window.dactylRelay?.active?window.dactylRelay.bird:null;
+  const hidden=remoteBird?
+    (remoteBird.hiddenUntil>Date.now()+window.dactylRelay.serverOffset):
+    world<birdRepelUntil;
+  if(!hidden)faces.push(...DactylVisuals.bird({
+    x:birdX,y:birdY,z:birdZ,heading:birdHeading,flap:birdFlap
+  }));
   const actors=[...Object.entries(others),...(room?[]:[['bot',bot]])],active=new Set();
   for(const [key,p]of actors){
     active.add(key);const previous=actorVisualState.get(key);
@@ -41,7 +47,7 @@ function ground(x,z){return DactylGeometry.groundAt(x,z,platforms,stairSurfaces)
 let audioCtx=null,fxBus=null,musicBus=null,audioStarted=false,musicNext=0,stepClock=0,previousY=0;function initAudio(){if(audioCtx){audioCtx.resume();return}const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;audioCtx=new AC();fxBus=audioCtx.createGain();musicBus=audioCtx.createGain();fxBus.connect(audioCtx.destination);musicBus.connect(audioCtx.destination);updateAudio();audioStarted=true}function updateAudio(){if(!audioCtx)return;fxBus.gain.value=Number(document.querySelector('#fxVol').value)/63*.35;musicBus.gain.value=Number(document.querySelector('#musicVol').value)/63*.32}function tone(freq,duration,type='sawtooth',dest=fxBus,vol=.18,endFreq=null,when=null){if(!audioCtx||!dest)return;const at=when??audioCtx.currentTime,o=audioCtx.createOscillator(),v=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,freq),at);if(endFreq)o.frequency.exponentialRampToValueAtTime(Math.max(20,endFreq),at+duration);v.gain.setValueAtTime(.0001,at);v.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),at+.008);v.gain.exponentialRampToValueAtTime(.0001,at+duration);o.connect(v);v.connect(dest);o.start(at);o.stop(at+duration+.02)}function noise(duration,volume=.18,low=100,high=8000){if(!audioCtx)return;const n=Math.floor(audioCtx.sampleRate*duration),buf=audioCtx.createBuffer(1,n,audioCtx.sampleRate),data=buf.getChannelData(0);let prev=0;for(let i=0;i<n;i++){const white=Math.random()*2-1;prev=prev*.82+white*.18;data[i]=prev}const src=audioCtx.createBufferSource(),filter=audioCtx.createBiquadFilter(),env=audioCtx.createGain();src.buffer=buf;filter.type='bandpass';filter.frequency.value=Math.sqrt(low*high);filter.Q.value=.65;env.gain.setValueAtTime(volume,audioCtx.currentTime);env.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+duration);src.connect(filter);filter.connect(env);env.connect(fxBus);src.start()}function sound(kind){if(!audioCtx)return;switch(kind){case 'shot':tone(280,.28,'sawtooth',fxBus,.22,65);noise(.12,.17,400,6000);break;case 'step':noise(.075,.085,70,450);tone(65,.055,'triangle',fxBus,.1,48);break;case 'screech':tone(210,.75,'sawtooth',fxBus,.12,690);tone(455,.55,'square',fxBus,.055,185);break;case 'grab':tone(120,.8,'sawtooth',fxBus,.17,45);noise(.4,.11,90,1800);break;case 'fall':tone(380,.9,'triangle',fxBus,.17,55);break;case 'hit':noise(.26,.21,90,2200);tone(130,.3,'square',fxBus,.12,44);break;case 'laugh':for(let i=0;i<5;i++)tone(150+(i%2)*85,.16,'triangle',fxBus,.075,100+(i%2)*75,audioCtx.currentTime+i*.19);break}}function scoreTick(){if(!audioCtx||document.querySelector('#scoreMode').value==='none'||!playing)return;const now=audioCtx.currentTime;if(now<musicNext)return;const notes=[110,116.54,164.81,146.83,110,123.47,98,130.81];const n=Math.floor(world/6)%notes.length;tone(notes[n],5.7,'triangle',musicBus,.34,notes[n]*.996,now);tone(notes[n]*2.005,3.5,'sine',musicBus,.13,notes[n]*2,now+.7);musicNext=now+6.2}function refreshAudioLevels(){document.querySelector('#fxLevel').textContent=document.querySelector('#fxVol').value+' / 63';document.querySelector('#musicLevel').textContent=document.querySelector('#musicVol').value+' / 63';updateAudio()}document.querySelector('#fxVol').oninput=refreshAudioLevels;document.querySelector('#musicVol').oninput=refreshAudioLevels;document.querySelector('#previewFx').onclick=()=>{initAudio();audioCtx?.resume();sound('shot');document.querySelector('#audioStatus').textContent='Gunshot preview played. Check phone volume and output if silent.'};document.querySelector('#previewMusic').onclick=()=>{initAudio();audioCtx?.resume();if(!audioCtx)return;const now=audioCtx.currentTime;for(let i=0;i<4;i++){const f=[146.83,130.81,116.54,110][i];tone(f,1.8,'triangle',musicBus,.62,f*.997,now+i*1.15);tone(f*2,1.3,'sine',musicBus,.24,f*2,now+i*1.15+.12)}document.querySelector('#audioStatus').textContent='Music preview playing for about five seconds.'};document.querySelector('#scoreMode').onchange=()=>{musicNext=0};
 function beginSoloMatch(){
   soloClock.start(performance.now());score=0;world=0;shots=[];lastShot=-Infinity;
-  birdTrigger.reset();birdAttack=0;birdCarry=0;birdCooldown=7;birdNotice='';
+  birdTrigger.reset();birdAttack=0;birdCarry=0;birdCooldown=7;birdRepelUntil=0;birdNotice='';
   me.x=-13;me.y=2;me.z=3;invulnerable=4;
   document.querySelector('#matchResult').hidden=true;
 }
@@ -102,10 +108,19 @@ if(window.dactylRelay?.active){
     }
   }
 }
-if(Math.hypot(dx,dz)>.008&&ground(me.x,me.z)!==null){stepClock-=dt;if(stepClock<=0){sound('step');stepClock=.52}}else stepClock=0;bot.x=13+Math.sin(world*.55)*2;bot.z=3.65+Math.sin(world*.7)*.2;bot.y=2;const actorTargets=Object.entries(window.dactylRelay?.active?{}:room?others:{bot}).map(([pid,p])=>({id:pid,x:p.x,y:p.y,z:p.z}));
+if(Math.hypot(dx,dz)>.008&&ground(me.x,me.z)!==null){stepClock-=dt;if(stepClock<=0){sound('step');stepClock=.52}}else stepClock=0;bot.x=13+Math.sin(world*.55)*2;bot.z=3.65+Math.sin(world*.7)*.2;bot.y=2;const actorTargets=Object.entries(window.dactylRelay?.active?{}:room?others:{bot})
+  .map(([pid,p])=>({id:pid,x:p.x,y:p.y,z:p.z}));
+const shootableBird=!window.dactylRelay?.active&&birdAttack>0&&world>=birdRepelUntil?
+  DactylProjectiles.makeWorld(DactylVisuals.bird({
+    x:birdX,y:birdY,z:birdZ,heading:birdHeading,flap:birdFlap})):null;
 for(const b of shots){
-  const hit=DactylProjectiles.advance(b,dt,projectileWorld,actorTargets,b.owner);
-  if(hit?.kind==='player'&&b.owner===id&&!window.dactylRelay?.active){score++;sound('hit');send({type:'hit',target:hit.target})}
+  const hit=DactylProjectiles.advance(b,dt,projectileWorld,actorTargets,b.owner,shootableBird);
+  if(hit?.kind==='bird'&&birdAttack>0&&!window.dactylRelay?.active){
+    birdAttack=0;birdCooldown=13;birdRepelUntil=world+2.5;
+    birdTrigger.reset();birdNotice='DACTYL SHOT DOWN';sound('hit');
+  }else if(hit?.kind==='player'&&b.owner===id&&!window.dactylRelay?.active){
+    score++;sound('hit');send({type:'hit',target:hit.target});
+  }
 }
 shots=shots.filter(b=>b.ttl>0);if(fireHeld)shoot();if(birdNotice&&Math.floor(world)%7===6)birdNotice='';if(room&&!serverCarried&&Math.floor(world*12)!==Math.floor((world-dt)*12))send({type:'state',x:me.x,y:me.y,z:me.z,score})}if(t-lastDraw>=1000/targetFPS-1){lastDraw=t;build();if(depthRenderer){const basis=cameraBasis||DactylOrientation.viewBasis(yaw,pitch);g.clearRect(0,0,W,H);starContext.fillStyle=DactylVisuals.PALETTE.void;starContext.fillRect(0,0,W,H);if(vr){DactylVisuals.drawStars(starContext,0,W/2,H,basis,(W/2)/(2*Math.tan(.54)));DactylVisuals.drawStars(starContext,W/2,W/2,H,basis,(W/2)/(2*Math.tan(.54)))}else DactylVisuals.drawStars(starContext,0,W,H,basis,W/(2*Math.tan(.54)));depthRenderer.render(faces,me,basis,vr,W,H,Math.min(devicePixelRatio||1,2),stereoSeparation)}if(vr){draw(0,W/2,-1);draw(W/2,W/2,1)}else draw(0,W,0);renderedFrames++}hud.textContent='TIME '+Math.floor((window.dactylRelay?.active?window.dactylRelay.remainingSeconds():soloClock.remaining(t))/60)+':'+String((window.dactylRelay?.active?window.dactylRelay.remainingSeconds():soloClock.remaining(t))%60).padStart(2,'0')+'  SCORE '+score+'  '+(room?'ROOM '+room:'SOLO')+(birdAttack>0?'  DACTYL APPROACHING!':'')+(birdNotice?'  '+birdNotice:'');hudRight.textContent=hud.textContent;requestAnimationFrame(tick)}requestAnimationFrame(tick);
 document.querySelector('#frameRate').onchange=e=>{targetFPS=Number(e.target.value)===60?60:20;lastDraw=-Infinity};document.querySelector('#solo').onclick=()=>start(false);document.querySelector('#cardboard').onclick=()=>start(true);document.querySelector('#menuBtn').onclick=()=>openGameMenu();document.querySelector('#center').onclick=()=>recenter();

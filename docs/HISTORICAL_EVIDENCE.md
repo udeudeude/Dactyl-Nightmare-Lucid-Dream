@@ -60,4 +60,45 @@ physical iPhone has been tested in this pass.
 
 The original 1000CS service manual, printed page **1.14**, documents **two independent options**: `b<n>` bird attacks after `n` shots (default **10**), and `t<n>` match duration in seconds (default **180**). The ten-shot trigger **is not the match timer**, and no primary evidence currently establishes that it was designed to shorten paid arcade sessions. A 1993 player account [recalled by Allen Huffman](https://subethasoftware.com/2014/03/) says the pterodactyl could be shot *at*, but does not document whether it can be wounded, killed or repelled in the original 1991 program. The [1994 SP derivative](https://www.arcade-history.com/game/12495/dactyl-nightmare-sp) explicitly mentions shooting the bird first, but later SU2000 mechanics must not be silently assumed for 1000CS. A scholarly [description of the original](https://www.sciencedirect.com/topics/computer-science/virtual-computer) describes a score-based multiplayer match ending when time expires and bird-caused loss of one point; the precise software revision is not verified.
 
-**Current recreation:** player projectiles do not collide with or damage the bird; the bird trigger counts successfully fired shots, including any shot eventually produced by the earbud burst queue. Pending input requests are not shots. The game implements the documented default 180-second match duration, but bird-caused point loss and original tie rules remain unverified. Do not characterize the bird as a credit-expiration mechanism or implement speculative bird damage without further evidence.
+**Updated recreation (2026-11-13):** The 180-second round and ten-shot
+bird trigger are implemented. New firsthand testimony below supports making the
+bird shootable during its approach. One valid projectile now **repels the bird**,
+interrupts the attack and briefly removes its visible mesh; it does not add a
+score or invent a giblet/explosion effect. Whether the precise 1991 launch
+revision did so, how it scored, and the correct impact animation remain
+unverified.
+
+## New source evidence: shooting down the attacking bird (2026-11-13)
+
+**Firsthand retrospective, moderate confidence:** In episode #49 of *Voices of VR*
+(10 July 2014), Scott Phillips describes playing `Dactyl Nightmare` in a
+Tasmanian shopping centre around **1994**, using a tracked handset, aiming
+carefully during the bird's final dive and successfully shooting the pterodactyl
+before it carried him off. The described narrow opportunity and long weapon
+reload support **shootability during the attack**, but do not establish a
+hitbox, score, weapon model, explosion animation or the exact 1991 program
+revision. [Full interview and transcript](https://voicesofvr.com/49-scott-phillips-on-his-vr-walker-shoe-based-locomotion-idea-dactyl-nightmare-inspiration-connecting-your-unconscious-mind-to-vr-for-presence-creative-expression-esoteric-self-exploration-of/).
+
+**Independent retrospective, moderate confidence:** A 2005 Slashdot comment
+identifies the original *Virtuality 1000* and advises shooting the bird before
+it picks the player up. The account is pseudonymous and not a dated machine
+record: [Slashdot discussion](https://tech.slashdot.org/story/05/05/01/220206/what-ever-happened-to-virtual-reality).
+
+**Contemporary corroboration, weaker for precise mechanics:** A September 17,
+1992 newspaper article describes the player's enemies as both a computer
+opponent and a flying pterodactyl, and identifies the gun as the player's
+weapon. Its language is consistent with the bird being a target, without
+explicitly confirming an on-hit effect:
+[1992 Chronicle scan](https://www.digifind-it.com/cranford/data/newspapers/chronicle/1992/1992-09-17.pdf).
+
+**Source boundary:** A 2020 article describes shooting and exploding a bird
+after eight shots in *Polygon Nightmare*, a modern fan-made Oculus reconstruction.
+That is **not** evidence of the original Virtuality mechanics; do not copy its
+eight-shot threshold or explosion implementation. The 1994 SU2000 *Dactyl
+Nightmare SP* description likewise cannot prove every 1991 1000CS behavior.
+
+**Implemented provisional rule:** one accurately intersecting projectile
+against the actual rendered bird mesh interrupts an **approaching** bird, with
+no unverified point award, and its silhouette disappears for 2.5 seconds before
+re-entering the established orbit. This is a testable placeholder pending
+period footage or executable preservation, not a verified historical animation.

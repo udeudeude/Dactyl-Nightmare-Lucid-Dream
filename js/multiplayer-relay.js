@@ -50,7 +50,7 @@
           relay.epoch=self.epoch;score=self.score;
           Object.assign(me,{x:self.x,y:self.y,z:self.z});
         }
-        world=0;shots=[];lastShot=-Infinity;birdTrigger.reset();birdCarry=0;birdAttack=0;birdNotice='';
+        world=0;shots=[];lastShot=-Infinity;birdTrigger.reset();birdCarry=0;birdAttack=0;birdRepelUntil=0;birdNotice='';
         document.querySelector('#matchResult').hidden=true;
       }else if(data.type==='match_end'){
         const players=data.players||[];
@@ -80,6 +80,9 @@
         if(data.b.owner!==id)shots.push({...data.b});else{const predicted=shots.find(b=>b.owner===id&&!b.id);if(predicted)predicted.id=data.b.id;}
       }else if(data.type==='bird_event'){
         const event=data.event;
+        if(event?.kind==='repelled'&&(event.target===id||event.source===id)){
+          birdNotice='DACTYL SHOT DOWN';sound('hit');
+        }
         if(event?.target===id){
           if(event.kind==='approach'){
             birdNotice='DACTYL APPROACHING';sound('screech');

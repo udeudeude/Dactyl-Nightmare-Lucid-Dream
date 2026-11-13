@@ -76,7 +76,7 @@
   }
   // Modifies the projectile exactly once. Geometry and players are tested along
   // the same swept path, so a player cannot be hit through a nearer column.
-  function advance(shot,dt,world,actors=[],owner=shot.owner){
+  function advance(shot,dt,world,actors=[],owner=shot.owner,birdWorld=null){
     if(!Number.isFinite(dt)||dt<0||dt>.25)throw Error('Invalid projectile interval');
     const start=[shot.x,shot.y,shot.z];
     const end=[shot.x+shot.vx*dt,shot.y+shot.vy*dt,shot.z+shot.vz*dt];
@@ -85,6 +85,12 @@
       if(actor.id===owner||actor.shielded)continue;
       const t=actorImpact(start,end,actor);
       if(t!==null&&(!hit||t<hit.t))hit={kind:'player',t,target:actor.id};
+    }
+    // During an attack, the moving bird's *actual rendered triangles* compete
+    // with terrain and player geometry for the nearest shot intersection.
+    if(birdWorld){
+      const birdHit=terrainImpact(start,end,birdWorld);
+      if(birdHit&&(!hit||birdHit.t<hit.t))hit={kind:'bird',t:birdHit.t};
     }
     const ratio=hit?.t??1;
     shot.x=start[0]+(end[0]-start[0])*ratio;
