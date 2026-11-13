@@ -1,11 +1,13 @@
 /* Original-hardware visual reference: docs/VISUAL_RECONSTRUCTION.md.
    New geometry, not recovered assets. Dimensions and hidden faces are inferred. */
 (function(root,factory){
-  const api=factory();
+  const geometry=(typeof module==='object'&&module.exports)?require('./geometry.js'):root.DactylGeometry;
+  const api=factory(geometry);
   if(typeof module==='object'&&module.exports)module.exports=api;
   else root.DactylVisuals=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(){
+})(typeof globalThis!=='undefined'?globalThis:this,function(geometry){
   'use strict';
+  const A=geometry.ARCHITECTURE;
   const PALETTE=Object.freeze({
     void:'#000000',star:'#c7d5d5',white:'#e4e6db',red:'#ed1717',blue:'#181bd5',
     teal:'#969f9f',tealSide:'#687579',tealDark:'#485558',
@@ -51,13 +53,13 @@
     const m=mesh(),P=PALETTE;
     // GamePro 13:08 / 13:32: clipped square exterior and square aperture.
     // Split the square opening at side midpoints to match the eight outer edges.
-    const outer=[[-.9,0],[.9,0],[1.4,.5],[1.4,2.3],[.9,2.8],[-.9,2.8],[-1.4,2.3],[-1.4,.5]];
+    const outer=[[-.9,0],[.9,0],[A.ringHalfWidth,.5],[A.ringHalfWidth,2.3],[.9,2.8],[-.9,2.8],[-A.ringHalfWidth,2.3],[-A.ringHalfWidth,.5]];
     const inner=[[-.55,.8],[.55,.8],[.55,1.1],[.55,1.7],[.55,2],[-.55,2],[-.55,1.7],[-.55,1.1]];
     // Each wall is separate: never fill the aperture with a single polygon.
     for(let i=0;i<8;i++){
       const j=(i+1)%8,at=(p,d)=>[p[0],p[1],d];
-      for(const d of [-.22,.22])m.face([at(outer[i],d),at(outer[j],d),at(inner[j],d),at(inner[i],d)],P.ring,'ring');
-      for(const contour of [outer,inner])m.face([at(contour[i],-.22),at(contour[j],-.22),at(contour[j],.22),at(contour[i],.22)],P.ringSide,'ring');
+      for(const d of [-A.ringHalfDepth,A.ringHalfDepth])m.face([at(outer[i],d),at(outer[j],d),at(inner[j],d),at(inner[i],d)],P.ring,'ring');
+      for(const contour of [outer,inner])m.face([at(contour[i],-A.ringHalfDepth),at(contour[j],-A.ringHalfDepth),at(contour[j],A.ringHalfDepth),at(contour[i],A.ringHalfDepth)],P.ringSide,'ring');
     }
     return transform(m.faces,x,y,z,heading);
   }
@@ -80,9 +82,9 @@
           (i+j+qx*count+qz*count)%2?P.white:(index===0?P.blue:P.red),'checks');
       }
       m.box(p.x,p.y-.3,p.z,p.w,.3,p.w,P.teal,P.tealSide,P.tealDark,'slab',false);
-      const span=p.w*.43,height=index===0?3.4:2.9;
+      const span=p.w*A.columnSpanFraction,height=index===0?3.4:2.9;
       for(const dx of [-span/2,span/2])for(const dz of [-span/2,span/2]){
-        column(m,p.x+dx,p.y,p.z+dz,[[0,.43],[.12,.43],[.45,.19],[height-.22,.19],[height,.32]],
+        column(m,p.x+dx,p.y,p.z+dz,[[0,A.columnBaseRadius],[.12,A.columnBaseRadius],[.45,.19],[height-.22,.19],[height,.32]],
           [P.yellow,P.yellowSide,P.yellowDark,P.yellowSide],'column');
       }
       // Angular arch soffits visible at 13:36. Split into convex sections for clipping.
@@ -96,9 +98,9 @@
       const heading=index===0?0:Math.atan2(p.x-platforms[0].x,p.z-platforms[0].z);
       m.faces.push(...ring(p.x,p.y,p.z,heading));
       // Faceted corner cones are visible on center and outer boards; dimensions inferred.
-      const offset=p.w*.37;
+      const offset=p.w*A.markerOffsetFraction;
       for(const dx of [-offset,offset])for(const dz of [-offset,offset])
-        column(m,p.x+dx,p.y,p.z+dz,[[0,.42],[.12,.42],[.75,0]],
+        column(m,p.x+dx,p.y,p.z+dz,[[0,A.markerBaseRadius],[.12,A.markerBaseRadius],[.75,0]],
           index===0?[P.yellow,P.yellowSide]:[P.marker,P.birdLight],'marker');
     }
     for(const p of stairs)m.box(p.x,p.y-.25,p.z,p.w,.25,p.d,
