@@ -136,3 +136,20 @@ The original uploaded MDF and 857-row TSV manifest were available again. SHA-256
 **Important correction:** This rerun validates **241**, not the previously claimed **249**, indexed-polygon models under the strict common assumptions. The previous 237 long-header success count is not reproduced. Eight exceptional files (`PEARL/STAIRE.BIN` and seven `ETS/MODELS/` files) have non-monotonic offsets; counting them as successful without resolving their section semantics is not justified. The 25 index failures include player anatomy/weapon models and eggs, which may involve different index bases or record semantics. Do not claim 18,453 verified polygons as a currently reproduced aggregate. Investigate these exceptions and rerun a single canonical validator before asserting revised totals.
 
 The strict rerun was performed directly against the original disc and manifest, not by executing an external original binary. This section supersedes conflicting earlier counts in this research log.
+
+## Strict polygon-material census (2026-11-13)
+
+A fresh read-only scan of the supplied MDF and 835-file manifest reproduced **241 validated models** but counted **18,342 complete indexed polygons** (not the earlier unreplicated 18,453). The [material survey](../scripts/survey_su2000_materials.py) implements strict section, index, and polygon-stream validation and reports aggregate histograms only.
+
+Measured examples from the 1994 SU2000 files:
+
+| Model | Vertices | Faces | Packed polygon attributes |
+| --- | ---: | ---: | --- |
+| `DAC/MODELS/DACTYL/DACBOD.BIN` | 42 | 60 | `0x6000000c` (all 60) |
+| `DAC/MODELS/NEWDACTY/DACBOD.BIN` | 49 | 76 | `0x20004600` (all 76) |
+| `DAC/MODELS/OBJECTS/RAIL.BIN` | 12 | 11 | `0x38000000` (all 11) |
+| `DAC/MODELS/OBJECTS/STAIR.BIN` | 64 | 48 | `0x38000000` (33); `0x38000001` (15) |
+
+The third 32-bit word of the polygon record is zero for **18,053 of 18,342** validated faces; the remaining 289 have small nonzero values. This is evidence of structured per-face attributes, **not yet a decoded palette or material system**. In particular, `0x38000001` differing from `0x38000000` by one bit does not prove the low bit means a color. No proprietary mesh data or samples are published.
+
+**Correction:** Supersedes the earlier polygon total of 18,453. The number of validated models remains 241.
