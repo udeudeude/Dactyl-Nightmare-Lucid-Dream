@@ -22,6 +22,18 @@ Research audit: **2026-11-13**. Scope: the **Virtuality 1000CS** game originally
 | **Title/startup visual** | No authenticated in-game 1000CS title graphic or instruction/credits screen recovered. A Virtuality 1993 brochure graphic is reproduced in Green's thesis fig. 3-2, **but it is marketing literature, not an on-screen menu**. | Separate media classes. | Retain phone-specific title/menu as explicitly modern shell rather than claiming its styling is original. |
 | **Unrelated diagnostic interface** | The 1993 1000CS manual depicts graphical **Engineering Test System** menus, including a credit-device test screen, on later pages. These are not Dactyl gameplay/title screens. | Direct manual, different program. | Do not copy Engineering Test System typography, menu layout or credits to a purported Dactyl title screen. |
 
+### An internally consistent 21-second countdown
+
+In the previously logged GamePro V03 observations, the archive-time difference
+between 791 s and 812 s is **21 seconds**. The gameplay clock decreases from
+**0:47 to 0:26**, also **21 seconds**, while both player scores increase.
+This is an unusually useful *internal consistency check*: the numerals behave
+as a live gameplay countdown, not static promotional text. It does **not**
+establish that every intermediate television frame was continuous, that the
+two readings were captured with exact frame precision, or that any `0:00`
+result screen was seen. A frame-extraction follow-up should confirm both
+readings against source pixels and test intermediate timestamps.
+
 ## 2. Frame audit / what still must be checked
 
 This is an **audit of previously inspected frames, not a newly performed extraction**. Source V03 is `Gamepro S01E23 (1991).ia.mp4`, Internet Archive `gamepro-tv`, historically archived 605,777,076-byte analogue-derived upscaled video; SHA-1 `d2e408d6fb0b418f84765af66d5a67be2c5508e9`. The archive filename's 1991 label conflicts with a matching television excerpt describing April 1992 rental charts; broadcast date remains unresolved.
