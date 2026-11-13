@@ -140,7 +140,7 @@
   // If a diagonal step is blocked, resolve its axes independently so a player
   // naturally slides along a wall or pillar rather than freezing entirely.
   function moveOnGround(position,dx,dz,platforms,steps,{
-    radius=ARCHITECTURE.playerRadius,maxRise=.55,voidSpeed=.35,maxSubstep=.12
+    radius=ARCHITECTURE.playerRadius,maxRise=.55,voidSpeed=.35,maxSubstep=.05
   }={}){
     if(![position.x,position.y,position.z,dx,dz,radius,maxRise,voidSpeed,maxSubstep].every(Number.isFinite)||
        radius<0||maxSubstep<=0||voidSpeed<0||voidSpeed>1)throw Error('Invalid movement');
