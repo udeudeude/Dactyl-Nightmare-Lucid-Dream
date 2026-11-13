@@ -45,8 +45,8 @@
           victim.moveAt=now;victim.moveCredit=.65;
           const event=change(bird,'patrol',null,null);
           bird.cooldownUntil=now+DROP_COOLDOWN_MS;
-          events.push({kind:'drop',target:victim.id,position:{x:victim.x,y:victim.y,z:victim.z},
-            epoch:victim.epoch,sequence:bird.sequence,...event});
+          events.push({...event,kind:'drop',target:victim.id,position:{x:victim.x,y:victim.y,z:victim.z},
+            epoch:victim.epoch,sequence:bird.sequence});
         }
       }else{
         change(bird,'patrol',null,null);bird.cooldownUntil=now+DROP_COOLDOWN_MS;
