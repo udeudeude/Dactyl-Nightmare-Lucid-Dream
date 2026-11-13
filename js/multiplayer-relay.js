@@ -27,10 +27,10 @@
       if(state==='connected')status('ROOM '+relay.room+' · Connected. Choose Play, or share the room.');
       else if(state==='connecting')status('Connecting to room server…');
       else if(state==='reconnecting'){
-        playing=false;clearInput();menu.style.display='block';
+        openGameMenu();
         status('Reconnecting… Your seat is reserved for 30 seconds. A sleeping server can take a minute.');
       }else if(state==='error'){
-        playing=false;clearInput();menu.style.display='block';resetToSolo();
+        openGameMenu();resetToSolo();
         status(messages[code]||'Room connection failed: '+code);
       }
     },
@@ -132,7 +132,7 @@
       const code=document.querySelector('#room').value.trim().toUpperCase();
       if(action==='join'&&!/^LD-[0-9A-F]{8}$/.test(code))return status(messages.invalid_room);
       const credentials=action==='join'&&saved?.url===url&&saved.room===code?saved:null;
-      clearPeers();playing=false;clearInput();
+      clearPeers();openGameMenu();
       relay.connect(url,credentials?'resume':action,code,credentials);
     }catch(error){status(error.message);}
   }
