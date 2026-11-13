@@ -60,7 +60,7 @@ async function start(v){
     trackingStatus.textContent='Waiting for motion readings…';
     screen.orientation?.lock?.('landscape')?.catch(()=>{});
     motionTimeout=setTimeout(()=>{
-      if(!tracking&&vr){playing=false;clearInput();stopMotion();menu.style.display='block';
+      if(!tracking&&vr){openGameMenu();
         trackingStatus.textContent='No motion readings arrived. Check Safari motion access and retry, or choose phone play.';}
     },3000);
   }
@@ -68,9 +68,9 @@ async function start(v){
 function gamepadActions(gp){
   const centerDown=!!gp.buttons[8]?.pressed,menuDown=!!gp.buttons[9]?.pressed;
   if(centerDown&&!gamepadCenterDown)recenter();
-  if(menuDown&&!gamepadMenuDown){playing=false;clearInput();menu.style.display='block';}
+  if(menuDown&&!gamepadMenuDown)openGameMenu();
   gamepadCenterDown=centerDown;gamepadMenuDown=menuDown;
 }
 addEventListener('resize',()=>{
-  if(vr&&playing&&innerWidth<=innerHeight){playing=false;clearInput();stopMotion();menu.style.display='block';trackingStatus.textContent='Cardboard paused. Turn the phone sideways and tap Google Cardboard to resume.';}
+  if(vr&&playing&&innerWidth<=innerHeight){openGameMenu();trackingStatus.textContent='Cardboard paused. Turn the phone sideways and tap Google Cardboard to resume.';}
 });

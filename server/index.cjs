@@ -11,6 +11,7 @@ const PUBLIC_FILES = new Map([
   ['/js/geometry.js',['js/geometry.js','text/javascript']],
   ['/js/visuals.js',['js/visuals.js','text/javascript']],
   ['/js/projectiles.js',['js/projectiles.js','text/javascript']],
+  ['/js/stereo.js',['js/stereo.js','text/javascript']],
   ['/js/depth-renderer.js',['js/depth-renderer.js','text/javascript']],
   ['/js/earbud-remote.js',['js/earbud-remote.js','text/javascript']],
   ['/js/earbud-fire-queue.js',['js/earbud-fire-queue.js','text/javascript']],
