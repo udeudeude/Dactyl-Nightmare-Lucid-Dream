@@ -38,5 +38,21 @@
     remaining(now){if(!Number.isFinite(now))throw Error('Invalid clock time');return this.endsAt===null?this.duration:Math.max(0,Math.ceil((this.endsAt-now)/1000));}
     expired(now){return this.endsAt!==null&&now>=this.endsAt;}
   }
-  return {BirdTrigger,MatchClock};
+  // Sherman & Craig's technical description of original Virtuality Dactyl:
+  // +1 for each player hit, -1 when killed by the bird, high score at timeout.
+  // The penalty threshold and tie presentation are not version-specific artifacts.
+  function penalizeBirdDeath(score){
+    if(!Number.isSafeInteger(score))throw Error('Invalid score');
+    return score-1; // Do not assume an undocumented zero-point score floor.
+  }
+  // Tied winners share first place. A plain ranked result is a modern phone
+  // convenience, NOT a reproduction of an original game-over display.
+  function standings(players){
+    if(!Array.isArray(players)||players.some(p=>!p||typeof p.id!=='string'||
+       !Number.isSafeInteger(p.score)))throw Error('Invalid standings');
+    const sorted=players.slice().sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
+    return sorted.map((p,i)=>({...p,place:sorted.findIndex(q=>q.score===p.score)+1,
+      winner:sorted.length>0&&p.score===sorted[0].score}));
+  }
+  return {BirdTrigger,MatchClock,penalizeBirdDeath,standings};
 });

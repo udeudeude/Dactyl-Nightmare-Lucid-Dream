@@ -172,6 +172,7 @@ test('ten server-confirmed shots cause one shared bird capture and authoritative
  assert.equal(room.bird.phase,'patrol');
  assert.equal(p.epoch,3);
  assert.equal(p.y,5);
+ assert.equal(p.score,-1,'bird-caused death must deduct one documented point');
  assert.equal(f.host.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='drop').length,1);
  const last=room.bird.sequence;
  f.rooms.advance(.02);assert.equal(room.bird.sequence,last,'drop cannot repeat');
@@ -225,4 +226,15 @@ test('the authoritative room bird can be shot once during its approach',()=>{
  assert.ok(defender.messages.some(m=>m.type==='shot_end'&&m.reason==='bird'));
  f.rooms.advance(.02);
  assert.equal(friend.messages.filter(m=>m.type==='bird_event'&&m.event.kind==='repelled').length,1);
+});
+
+test('final match standings share first place in a tie and preserve bird penalty',()=>{
+ const f=fixture(),guest=f.join(),room=f.host.room;
+ f.rooms.receive(f.host,{type:'start'});
+ f.host.player.score=4;guest.player.score=4;
+ f.setTime(180000);f.rooms.advance(.02);
+ const end=f.host.messages.find(m=>m.type==='match_end');
+ assert.equal(end.players.length,2);
+ assert.ok(end.players.every(p=>p.winner===true&&p.place===1));
+ assert.equal(room.phase,'finished');
 });

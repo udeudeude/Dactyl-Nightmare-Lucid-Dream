@@ -3,7 +3,7 @@ const { randomBytes, randomUUID } = require('node:crypto');
 const Geometry=require('../js/geometry.js');
 const Visuals=require('../js/visuals.js');
 const Projectiles=require('../js/projectiles.js');
-const {MatchClock}=require('../js/rules.js');
+const {MatchClock,penalizeBirdDeath,standings}=require('../js/rules.js');
 const Motion=require('./movement.cjs');
 const Bird=require('../js/bird.js');
 const WORLD=Projectiles.makeWorld(Visuals.arena(Geometry.PLATFORMS,Geometry.stairs(Geometry.PLATFORMS)));
@@ -169,7 +169,7 @@ class Rooms {
         room.phase='finished';room.shots=[];
         if(room.bird){room.bird.phase='patrol';room.bird.target=null;room.bird.until=null;}
         this.broadcast(room,{type:'match_end',match:this.matchStatus(room),
-          players:[...room.players.values()].map(p=>this.publicPlayer(p)),serverTime:this.now()});
+          players:standings([...room.players.values()].map(p=>this.publicPlayer(p))),serverTime:this.now()});
         this.broadcast(room,this.snapshot(room));
       }
       if(room.phase!=='running')continue;
@@ -177,6 +177,9 @@ class Rooms {
         const events=Bird.advance(room.bird,[...room.players.values()],this.now());
         for(const event of events){
           const victim=room.players.get(event.target);
+          // Original-era technical account: the bird's fatal drop costs one point.
+          // The timed carry/drop simulation uses release as a proxy for death.
+          if(event.kind==='drop'&&victim)victim.score=penalizeBirdDeath(victim.score);
           this.broadcast(room,{type:'bird_event',event,bird:this.birdStatus(room),
             self:victim?this.publicPlayer(victim):null,serverTime:this.now()});
           this.broadcast(room,this.snapshot(room));

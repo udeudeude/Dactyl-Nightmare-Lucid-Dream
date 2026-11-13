@@ -36,3 +36,23 @@ test('matching countdown is visible in both Cardboard eyes',async({page})=>{
  await expect(page.locator('#hudRight')).toContainText('TIME 3:00');
  await expect(page.locator('#hudRight')).toHaveText(await page.locator('#hud').textContent());
 });
+
+test('bird-caused solo drop deducts one point; result panel is explicitly reconstructed',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');
+ await page.locator('#solo').click();
+ const result=await page.evaluate(()=>{
+   score=0;birdCarry=.01;birdAttack=0;birdCooldown=8;invulnerable=0;
+   const time=performance.now();last=time-30;tick(time);
+   return {score,birdCarry,notice:birdNotice};
+ });
+ expect(result.score).toBe(-1);
+ expect(result.birdCarry).toBeLessThanOrEqual(0);
+ expect(result.notice).toContain('1 POINT');
+ await page.evaluate(()=>finishMatch('Time up. Final score: -1'));
+ await expect(page.locator('#reconstructedResultNote')).toBeVisible();
+ await expect(page.locator('#reconstructedResultNote')).toContainText('not been recovered');
+ await page.locator('#solo').click();
+ await expect(page.locator('#reconstructedResultNote')).toBeHidden();
+ expect(errors).toEqual([]);
+});
