@@ -5,6 +5,7 @@ const Visuals=require('../js/visuals.js');
 const Projectiles=require('../js/projectiles.js');
 const {MatchClock}=require('../js/rules.js');
 const Motion=require('./movement.cjs');
+const Bird=require('../js/bird.js');
 const WORLD=Projectiles.makeWorld(Visuals.arena(Geometry.PLATFORMS,Geometry.stairs(Geometry.PLATFORMS)));
 const SPAWNS = [{x:-13,y:2,z:3},{x:13,y:2,z:3},{x:3,y:2,z:-13},{x:3,y:2,z:13}];
 const GRACE_MS = 30000;
@@ -26,7 +27,7 @@ class Rooms {
       let code;
       do { code = 'LD-' + randomBytes(4).toString('hex').slice(0,8).toUpperCase(); } while (this.rooms.has(code));
       room = { code, players: new Map(), shots: [], born: this.now(), sequence: 0,
-        clock:new MatchClock(), phase:'lobby' };
+        clock:new MatchClock(), phase:'lobby',bird:null };
       this.rooms.set(code, room);
     } else {
       if (typeof message.room !== 'string' || !/^LD-[0-9A-F]{8}$/.test(message.room)) throw new RoomError('invalid_room');
@@ -45,26 +46,27 @@ class Rooms {
       const slot = SPAWNS.findIndex((_, i) => ![...room.players.values()].some(p => p.slot === i));
       player = { id: randomUUID(), token: randomBytes(24).toString('hex'), slot,
         ...SPAWNS[slot], score: 0, epoch: 0, lastShot: -Infinity, shieldUntil: this.now() + 4000,
-        moveAt:this.now(),moveCredit:Motion.START_CREDIT,birdShots:0,birdGraceUntil:0 };
+        moveAt:this.now(),moveCredit:Motion.START_CREDIT,birdShots:0,pendingBird:false };
       room.players.set(player.id, player);
     }
     player.socket = socket; player.disconnectedAt = null;
     player.moveAt=this.now();player.moveCredit=Motion.START_CREDIT;
     socket.player = player; socket.room = room;
     this.send(socket, { type: 'welcome', v: 1, room: room.code, id: player.id, token: player.token,
-      self: this.publicPlayer(player), shots: room.shots, serverTime: this.now(),match:this.matchStatus(room) });
+      self: this.publicPlayer(player), shots: room.shots, serverTime: this.now(),match:this.matchStatus(room),bird:this.birdStatus(room) });
     this.broadcast(room, this.snapshot(room));
     return player;
   }
   publicPlayer(p) {
     return { id:p.id, x:p.x, y:p.y, z:p.z, score:p.score, epoch:p.epoch, online:!!p.socket };
   }
+  birdStatus(room){return room.bird?Bird.publicState(room.bird):null;}
   matchStatus(room){
     return {phase:room.phase,endsAt:room.clock.endsAt,duration:room.clock.duration};
   }
   snapshot(room) {
     return { type:'snapshot', sequence:++room.sequence, serverTime:this.now(),
-      match:this.matchStatus(room),players:[...room.players.values()].map(p=>this.publicPlayer(p)) };
+      match:this.matchStatus(room),bird:this.birdStatus(room),players:[...room.players.values()].map(p=>this.publicPlayer(p)) };
   }
   send(socket, message) {
     if (!socket || socket.readyState !== 1) return;
@@ -85,14 +87,15 @@ class Rooms {
     if(message.type==='start'){
       if(room.phase!=='running'){
         room.phase='running';room.clock.start(this.now());room.shots=[];
+        room.bird=Bird.create(this.now());
         for(const player of room.players.values()){
           player.score=0;player.epoch++;
           Object.assign(player,SPAWNS[player.slot]);
           player.shieldUntil=this.now()+4000;player.lastShot=-Infinity;
           player.moveAt=this.now();player.moveCredit=Motion.START_CREDIT;
-          player.birdShots=0;player.birdGraceUntil=0;
+          player.birdShots=0;player.pendingBird=false;
         }
-        this.broadcast(room,{type:'match_start',match:this.matchStatus(room),serverTime:this.now(),
+        this.broadcast(room,{type:'match_start',match:this.matchStatus(room),bird:this.birdStatus(room),serverTime:this.now(),
           players:[...room.players.values()].map(p=>this.publicPlayer(p))});
         this.broadcast(room,this.snapshot(room));
       }
@@ -104,6 +107,9 @@ class Rooms {
       // A delayed pre-hit packet must not undo a server-issued respawn.
       if (message.epoch !== p.epoch) return;
       if(room.phase!=='running')return;
+      // Captured players are moved entirely by the room simulation, not by
+      // the client's x/y/z state, even if an old packet arrives late.
+      if(room.bird?.phase==='carry'&&room.bird.target===p.id)return;
       // Solo and phone clients currently respawn locally at the west spawn
       // after falling. Verify that the server had already observed a real fall,
       // then apply this player's *own* authoritative room spawn instead.
@@ -118,8 +124,7 @@ class Rooms {
       const now=this.now(),elapsed=Math.max(0,now-p.moveAt);
       p.moveAt=now;
       p.moveCredit=Motion.replenish(p.moveCredit,elapsed);
-      const result=Motion.assess(p,message,{credit:p.moveCredit,now,elapsedMs:elapsed,
-        birdGraceUntil:p.birdGraceUntil});
+      const result=Motion.assess(p,message,{credit:p.moveCredit,now,elapsedMs:elapsed});
       if(!result.ok){
         this.send(socket,{type:'correction',reason:result.reason,self:this.publicPlayer(p)});
         return;
@@ -127,14 +132,13 @@ class Rooms {
       p.moveCredit=Math.max(0,p.moveCredit-result.cost);
       Object.assign(p,result.position);
     } else if (message.type === 'shot') {
-      if(room.phase!=='running')return;
+      if(room.phase!=='running'||(room.bird?.phase==='carry'&&room.bird.target===p.id))return;
       const b = message.b;
       if (!b || !['vx','vy','vz'].every(k => Number.isFinite(b[k])) ||
           Math.abs(Math.hypot(b.vx,b.vy-3,b.vz)-13) > .1) throw new RoomError('invalid_shot');
       if (message.epoch !== p.epoch || this.now() - p.lastShot < SHOT_INTERVAL_MS) return;
       p.lastShot = this.now();
-      p.birdShots=(p.birdShots||0)+1;
-      if(p.birdShots>=10){p.birdShots=0;p.birdGraceUntil=this.now()+22000;}
+      Bird.recordShot(p);
       // Identity, muzzle, lifetime and score come from server state, never from
       // client-supplied owner/source/target/score fields.
       const shot = { id:randomUUID(), owner:p.id, x:p.x, y:p.y+1.65, z:p.z,
@@ -163,11 +167,21 @@ class Rooms {
       if (!room.players.size) { this.rooms.delete(room.code); continue; }
       if(room.phase==='running'&&room.clock.expired(this.now())){
         room.phase='finished';room.shots=[];
+        if(room.bird){room.bird.phase='patrol';room.bird.target=null;room.bird.until=null;}
         this.broadcast(room,{type:'match_end',match:this.matchStatus(room),
           players:[...room.players.values()].map(p=>this.publicPlayer(p)),serverTime:this.now()});
         this.broadcast(room,this.snapshot(room));
       }
       if(room.phase!=='running')continue;
+      if(room.bird){
+        const events=Bird.advance(room.bird,[...room.players.values()],this.now());
+        for(const event of events){
+          const victim=room.players.get(event.target);
+          this.broadcast(room,{type:'bird_event',event,bird:this.birdStatus(room),
+            self:victim?this.publicPlayer(victim):null,serverTime:this.now()});
+          this.broadcast(room,this.snapshot(room));
+        }
+      }
       for (const b of room.shots) {
         const actors=[...room.players.values()].filter(p=>p.socket).map(p=>({
           id:p.id,x:p.x,y:p.y,z:p.z,shielded:this.now()<p.shieldUntil

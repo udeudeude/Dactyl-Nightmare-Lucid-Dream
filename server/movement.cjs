@@ -4,16 +4,12 @@ const PLATFORMS=G.PLATFORMS,STEPS=G.stairs(PLATFORMS);
 const SPEED=3.5,MAX_CREDIT=1.2,START_CREDIT=.65;
 const nearly=(a,b,t=.08)=>Math.abs(a-b)<=t;
 
-function assess(player,next,{credit,now,elapsedMs=0,birdGraceUntil=0}={}){
+function assess(player,next,{credit,now,elapsedMs=0}={}){
   const dx=next.x-player.x,dz=next.z-player.z,distance=Math.hypot(dx,dz);
   const fromGround=G.groundAt(player.x,player.z,PLATFORMS,STEPS);
   const toGround=G.groundAt(next.x,next.z,PLATFORMS,STEPS);
-  const inBirdFlight=birdGraceUntil>now &&
-    ((fromGround!==null&&player.y>fromGround+.35)||
-     (toGround!==null&&next.y>toGround+.35));
-  // Bird capture remains local to the original client implementation.
-  // Only grant its exceptional displacement after ten server-accepted shots.
-  if(inBirdFlight)return {ok:true,position:{x:next.x,y:next.y,z:next.z},cost:0,flight:true};
+  // Bird capture is now server-driven. Elevated displacement from a client
+  // is never an exception to grounded movement constraints.
   if(distance>credit+1e-7)return {ok:false,reason:'speed'};
   // Endpoint tolerances must never let a grounded player enter a solid.
   if(G.obstacleAt(next.x,next.z,PLATFORMS)&&!G.obstacleAt(player.x,player.z,PLATFORMS))
