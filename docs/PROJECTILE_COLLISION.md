@@ -10,7 +10,7 @@ The original arcade's exact projectile collision algorithm has not been recovere
 - A shot uses **swept segment-versus-triangle intersections**, with double-sided surfaces and broad-phase bounds. The nearest obstacle along the interval always wins.
 - The ring aperture remains open for small projectiles, even though the model's standing player cannot walk through it.
 - Other players are tested as finite upright cylinders, also along the swept interval. An actor behind a wall cannot be hit through it, and a single projectile awards at most one score.
-- Gravity and the existing 3-second projectile lifetime are retained. No ricochet, penetration, destruction, or bird damage is invented.
+- Gravity and the existing 3-second projectile lifetime are retained. No ricochet or penetration is invented. Independent firsthand retrospectives support defensive shots against the bird. A valid projectile can now repel an approaching bird without inventing an explosion or score award; see the historical evidence ledger.
 - In server-owned rooms, the server decides hits and sends a `shot_end` message for scenery contacts. Clients remove the matching projectile; a client cannot claim hits or score by reporting a target.
 - `server/index.cjs` must expose **every** JavaScript asset referenced by `index.html`. This pass also repairs the previously missing WebGL renderer and wired-earbud script routes when serving the game directly from Render.
 
