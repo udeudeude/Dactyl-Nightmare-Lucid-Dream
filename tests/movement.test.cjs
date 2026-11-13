@@ -12,6 +12,8 @@ test('server limits movement to a bounded network-jitter budget',()=>{
 test('server refuses crossing the ring or a column, even if the endpoint is clear',()=>{
  const ring=req(actor(0,.55),actor(0,-.55),1.2);
  assert.equal(ring.reason,'blocked');
+ assert.equal(req(actor(0,.55),actor(0,.44),1.2).reason,'blocked',
+  'jitter tolerance must not authorize even a short solid-boundary crossing');
  assert.equal(req(actor(-3.35,-2.58),actor(-2.45,-2.58),1.2).reason,'blocked');
  assert.equal(req(actor(0,2.5),actor(0,2.75,0)).ok,true);
 });
