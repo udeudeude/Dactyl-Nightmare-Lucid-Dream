@@ -184,7 +184,7 @@ class Rooms {
       }
       const birdPose=room.bird?.phase==='approach'?
         Bird.pose(this.now(),room.bird.startedAt):null;
-      const birdWorld=birdPose?
+      let birdWorld=birdPose?
         Projectiles.makeWorld(Visuals.bird(birdPose)):null;
       for (const b of room.shots) {
         const actors=[...room.players.values()].filter(p=>p.socket).map(p=>({
@@ -205,6 +205,7 @@ class Rooms {
           }
         }else if(impact.kind==='bird'){
           const event=Bird.repel(room.bird,this.now(),b.owner);
+          birdWorld=null; // Other shots in this tick cannot hit a repelled bird.
           this.broadcast(room,{type:'shot_end',shot:b.id,reason:'bird'});
           if(event){
             const victim=room.players.get(event.target);
